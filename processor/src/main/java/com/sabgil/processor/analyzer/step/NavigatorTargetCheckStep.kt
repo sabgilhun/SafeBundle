@@ -4,7 +4,7 @@ import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
 import com.sabgil.processor.analyzer.model.NavigatorTargetCheckResult
 import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.activityBasedNavigatorMarkPackageName
+import com.sabgil.processor.types.contextBasedNavigatorMarkPackageName
 import com.sabgil.processor.types.navigatorPackageName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
@@ -20,13 +20,15 @@ class NavigatorTargetCheckStep : Step<ArgumentsCheckResult, NavigatorTargetCheck
         input: ArgumentsCheckResult
     ): NavigatorTargetCheckResult {
         val annotationMirror = rootElement.annotationMirrors.first {
-            it.annotationType == env.typeElement(navigatorPackageName)
+            it.annotationType == env.typeElement(navigatorPackageName).asType()
         }
 
         val targetElement = env.typeElement(extractAnnotationValue(annotationMirror))
 
-        if (!(isAbstract(targetElement) || env.isImplementMark(targetElement))) {
-            // TODO : error report
+        println(isAbstract(targetElement))
+        println(env.isImplementMark(targetElement))
+        if (!isAbstract(targetElement) || !env.isImplementMark(targetElement)) {
+            TODO("NavigatorTargetCheckStep, error report")
         }
 
         return NavigatorTargetCheckResult(input.argumentsMap, targetElement)
@@ -42,7 +44,7 @@ class NavigatorTargetCheckStep : Step<ArgumentsCheckResult, NavigatorTargetCheck
     private fun isAbstract(element: Element) = element.modifiers.contains(Modifier.ABSTRACT)
 
     private fun ProcessingEnvironment.isImplementMark(element: Element) =
-        isAssignable(element.asType(), typeElement(activityBasedNavigatorMarkPackageName).asType())
+        isAssignable(element.asType(), typeElement(contextBasedNavigatorMarkPackageName).asType())
 
     companion object {
         private const val ANNOTATION_PROP_NAME = "clazz"

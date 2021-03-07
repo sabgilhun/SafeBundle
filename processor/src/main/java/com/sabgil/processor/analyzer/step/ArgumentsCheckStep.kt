@@ -2,6 +2,7 @@ package com.sabgil.processor.analyzer.step
 
 import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
 import com.sabgil.processor.analyzer.model.Parameterizable.Empty
+import com.sabgil.processor.ext.erasure
 import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
 import com.sabgil.processor.types.bundleValueHolderPackageName
@@ -22,7 +23,10 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
         env: ProcessingEnvironment,
         input: Empty
     ): ArgumentsCheckResult {
-        val bundleExtraHolderTypeMirror = env.typeElement(bundleValueHolderPackageName).asType()
+        val bundleExtraHolderTypeMirror = env.erasure(
+            env.typeElement(bundleValueHolderPackageName).asType()
+        )
+
         val delegateFields = rootElement.enclosedElements
             .filterIsInstance<VariableElement>()
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }
@@ -34,8 +38,8 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
             .filterIsInstance<ExecutableElement>()
             .filter { getterNames.contains(it.simpleName.toString()) }
 
-        if (!getters.all { env.isSerializableOrParcelable(it.asType()) }) {
-            // TODO : error report
+        if (!getters.all { env.isSerializableOrParcelable(it.returnType) }) {
+            TODO("ArgumentsCheckStep, error report")
         }
 
         delegateFields

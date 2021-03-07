@@ -5,13 +5,14 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.sabgil.annotation.Navigator
+import com.sabgil.safebundle.BundleValueHolder
+import com.sabgil.safebundle.ContextBasedNavigatorMark
 import java.io.Serializable
-import kotlin.reflect.KProperty
 
-@Navigator(Q::class)
+@Navigator(QQ::class)
 class MainActivity : AppCompatActivity() {
 
-    private val test by extraOf<QSE>()
+    private val test by extraOf<Q>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,21 +23,21 @@ class MainActivity : AppCompatActivity() {
 }
 
 
-fun <B> extraOf(): ExtraValueHolder<B> {
-    return ExtraValueHolder {
+fun <B> extraOf(): BundleValueHolder<B> {
+    return BundleValueHolder {
         @Suppress("UNCHECKED_CAST")
         Any() as B
     }
 }
 
-interface QQ : Serializable{
+interface QQ : ContextBasedNavigatorMark {
     fun a()
     fun b()
 }
 
 abstract class QQA {}
 
-class Q: Serializable  {
+abstract class Q : Serializable {
 
 }
 
@@ -64,32 +65,3 @@ class QSE() : Parcelable, Serializable {
     }
 
 }
-class ExtraValueHolder<V>(
-    private var initializer: (String) -> V
-) {
-    @Volatile
-    private var _value: Any? = UninitializedValue
-    private val lock = this
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): V {
-        val v1 = _value
-        if (v1 !== UninitializedValue) {
-            @Suppress("UNCHECKED_CAST")
-            return v1 as V
-        }
-
-        return synchronized(lock) {
-            val v2 = _value
-            if (v2 !== UninitializedValue) {
-                @Suppress("UNCHECKED_CAST") (v2 as V)
-            } else {
-                @Suppress("UNCHECKED_CAST")
-                val typedValue = initializer(property.name)
-                _value = typedValue
-                typedValue
-            }
-        }
-    }
-}
-
-private object UninitializedValue

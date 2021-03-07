@@ -19,7 +19,7 @@ class NavigatorOwnerCheckStep : Step<Empty, Empty>() {
         val activityTypeMirror = env.typeElement(activityPackageName).asType()
 
         if (!env.isAssignable(elementTypeMirror, activityTypeMirror)) {
-            // TODO : error report
+            TODO("NavigatorOwnerCheckStep, error report")
         }
 
         return Empty

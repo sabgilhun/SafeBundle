@@ -1,0 +1,7 @@
+package com.sabgil.safebundle
+
+interface ContextBasedNavigatorMark
+
+interface ActivityBasedNavigatorMark
+
+interface FactoryMark

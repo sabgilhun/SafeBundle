@@ -4,7 +4,7 @@ import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
 import com.sabgil.processor.analyzer.model.Parameterizable.Empty
 import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.bundleExtraHolderPackageName
+import com.sabgil.processor.types.bundleValueHolderPackageName
 import com.sabgil.processor.types.parcelablePackageName
 import com.sabgil.processor.types.serializablePackageName
 import java.util.*
@@ -22,7 +22,7 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
         env: ProcessingEnvironment,
         input: Empty
     ): ArgumentsCheckResult {
-        val bundleExtraHolderTypeMirror = env.typeElement(bundleExtraHolderPackageName).asType()
+        val bundleExtraHolderTypeMirror = env.typeElement(bundleValueHolderPackageName).asType()
         val delegateFields = rootElement.enclosedElements
             .filterIsInstance<VariableElement>()
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }

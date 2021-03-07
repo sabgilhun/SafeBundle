@@ -9,10 +9,16 @@ const val serializablePackageName = "java.io.Serializable"
 
 const val parcelablePackageName = "android.os.Parcelable"
 
-const val bundleExtraHolderPackageName = "test" // TODO : replace real class name
+const val bundleValueHolderPackageName = "com.sabgil.safebundle.BundleValueHolder"
 
-val navigatorPackageName = Navigator::class.java.canonicalName
+const val contextBasedNavigatorMarkPackageName = "com.sabgil.safebundle.ContextBasedNavigatorMark"
 
-val factoryPackageName = Factory::class.java.canonicalName
+const val activityBasedNavigatorMarkPackageName = "com.sabgil.safebundle.ActivityBasedNavigatorMark"
+
+const val factoryMarkPackageName = "com.sabgil.safebundle.FactoryMark"
+
+val navigatorPackageName: String = Navigator::class.java.canonicalName
+
+val factoryPackageName: String = Factory::class.java.canonicalName
 
 val fragmentClassData = "androidx.fragment.app.Fragment"

@@ -1,5 +1,11 @@
 package com.sabgil.processor.types
 
-val activityClassData = ClassData("android.app.Activity")
+val activityPackage = "android.app.Activity"
 
-val fragmentClassData = ClassData("androidx.fragment.app.Fragment")
+val serializablePackage = "java.io.Serializable"
+
+val parcelablePackage = "android.os.Parcelable"
+
+val bundleExtraHolderPackage = "test" // TODO : replace real class name
+
+val fragmentClassData = "androidx.fragment.app.Fragment"

@@ -3,6 +3,7 @@ package com.sabgil.processor
 import com.google.auto.service.AutoService
 import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
+import com.sabgil.processor.analyzer.AnnotationAnalyzer
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
@@ -23,8 +24,10 @@ class SafeBundleProcessor : AbstractProcessor() {
         val navigatorElements = roundEnvironment.getElementsAnnotatedWith(Navigator::class.java)
         val factoryElements = roundEnvironment.getElementsAnnotatedWith(Factory::class.java)
 
-        if (navigatorElements.isEmpty() && factoryElements.isEmpty()) {
-            return false
+        if (navigatorElements.isNotEmpty()) {
+            navigatorElements.forEach { element ->
+                AnnotationAnalyzer(element, processingEnv)
+            }
         }
 
         return true

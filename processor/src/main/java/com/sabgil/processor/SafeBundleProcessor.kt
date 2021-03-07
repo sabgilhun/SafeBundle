@@ -3,11 +3,11 @@ package com.sabgil.processor
 import com.google.auto.service.AutoService
 import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
-import com.sabgil.processor.analyzer.AnnotationAnalyzer
 import com.sabgil.processor.analyzer.step.ArgumentsCheckStep
 import com.sabgil.processor.analyzer.step.NavigatorOwnerCheckStep
 import com.sabgil.processor.analyzer.step.NavigatorTargetCheckStep
 import com.sabgil.processor.analyzer.step.NavigatorTargetFunctionsCheckStep
+import com.sabgil.processor.common.SequentialStep
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
@@ -30,7 +30,7 @@ class SafeBundleProcessor : AbstractProcessor() {
 
         if (navigatorElements.isNotEmpty()) {
             navigatorElements.forEach {
-                val result = AnnotationAnalyzer(it, processingEnv)
+                val result = SequentialStep(it, processingEnv)
                     .chain(NavigatorOwnerCheckStep())
                     .chain(ArgumentsCheckStep())
                     .chain(NavigatorTargetCheckStep())

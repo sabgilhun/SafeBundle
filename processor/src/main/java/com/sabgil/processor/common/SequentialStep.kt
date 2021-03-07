@@ -1,12 +1,10 @@
-package com.sabgil.processor.analyzer
+package com.sabgil.processor.common
 
-import com.sabgil.processor.analyzer.model.Parameterizable
-import com.sabgil.processor.analyzer.model.Parameterizable.Empty
-import com.sabgil.processor.analyzer.step.Step
+import com.sabgil.processor.common.Parameterizable.Empty
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 
-class AnnotationAnalyzer(
+class SequentialStep(
     private val element: Element,
     private val env: ProcessingEnvironment
 ) {
@@ -20,7 +18,7 @@ class AnnotationAnalyzer(
     inner class Bridge<I : Parameterizable>(private val input: I) {
 
         fun <O : Parameterizable> chain(step: Step<I, O>) =
-            Bridge(this@AnnotationAnalyzer.processStep(step, input))
+            Bridge(this@SequentialStep.processStep(step, input))
 
         fun result() = input
     }

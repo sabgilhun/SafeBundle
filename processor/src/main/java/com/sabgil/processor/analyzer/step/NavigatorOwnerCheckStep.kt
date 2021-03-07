@@ -1,9 +1,10 @@
 package com.sabgil.processor.analyzer.step
 
-import com.sabgil.processor.analyzer.model.Parameterizable.Empty
-import com.sabgil.processor.ext.isAssignable
-import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.activityPackageName
+import com.sabgil.processor.common.Step
+import com.sabgil.processor.common.Parameterizable.Empty
+import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.typeElement
+import com.sabgil.processor.common.types.activityPackageName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 

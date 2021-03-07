@@ -1,4 +1,4 @@
-package com.sabgil.processor.analyzer.model
+package com.sabgil.processor.common
 
 interface Parameterizable {
 

@@ -1,12 +1,13 @@
 package com.sabgil.processor.analyzer.step
 
-import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
-import com.sabgil.processor.analyzer.model.NavigatorTargetCheckResult
-import com.sabgil.processor.ext.isAssignable
-import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.contextBasedNavigatorMarkPackageName
-import com.sabgil.processor.types.navigatorPackageName
-import com.sabgil.processor.utils.isAbstract
+import com.sabgil.processor.common.Step
+import com.sabgil.processor.analyzer.result.ArgumentsCheckResult
+import com.sabgil.processor.analyzer.result.NavigatorTargetCheckResult
+import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.typeElement
+import com.sabgil.processor.common.types.contextBasedNavigatorMarkPackageName
+import com.sabgil.processor.common.types.navigatorPackageName
+import com.sabgil.processor.common.ext.isAbstract
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element

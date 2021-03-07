@@ -1,5 +1,6 @@
-package com.sabgil.processor.analyzer.model
+package com.sabgil.processor.analyzer.result
 
+import com.sabgil.processor.common.Parameterizable
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 

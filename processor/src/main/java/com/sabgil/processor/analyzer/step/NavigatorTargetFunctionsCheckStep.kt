@@ -1,10 +1,9 @@
 package com.sabgil.processor.analyzer.step
 
-import com.sabgil.processor.analyzer.model.NavigatorTargetCheckResult
-import com.sabgil.processor.analyzer.model.NavigatorTargetFunctionsCheckResult
-import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.unitPackageName
-import com.sabgil.processor.utils.isAbstract
+import com.sabgil.processor.common.Step
+import com.sabgil.processor.analyzer.result.NavigatorTargetCheckResult
+import com.sabgil.processor.analyzer.result.NavigatorTargetFunctionsCheckResult
+import com.sabgil.processor.common.ext.isAbstract
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement

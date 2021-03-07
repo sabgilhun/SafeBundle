@@ -1,6 +1,5 @@
-package com.sabgil.processor.analyzer.step
+package com.sabgil.processor.common
 
-import com.sabgil.processor.analyzer.model.Parameterizable
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 

@@ -1,4 +1,4 @@
-package com.sabgil.processor.ext
+package com.sabgil.processor.common.ext
 
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.TypeElement

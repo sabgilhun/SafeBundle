@@ -1,13 +1,14 @@
 package com.sabgil.processor.analyzer.step
 
-import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
-import com.sabgil.processor.analyzer.model.Parameterizable.Empty
-import com.sabgil.processor.ext.erasure
-import com.sabgil.processor.ext.isAssignable
-import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.bundleValueHolderPackageName
-import com.sabgil.processor.types.parcelablePackageName
-import com.sabgil.processor.types.serializablePackageName
+import com.sabgil.processor.common.Step
+import com.sabgil.processor.analyzer.result.ArgumentsCheckResult
+import com.sabgil.processor.common.Parameterizable.Empty
+import com.sabgil.processor.common.ext.erasure
+import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.typeElement
+import com.sabgil.processor.common.types.bundleValueHolderPackageName
+import com.sabgil.processor.common.types.parcelablePackageName
+import com.sabgil.processor.common.types.serializablePackageName
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element

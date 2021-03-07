@@ -1,4 +1,4 @@
-package com.sabgil.processor.types
+package com.sabgil.processor.common.types
 
 import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator

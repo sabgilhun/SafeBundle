@@ -3,7 +3,7 @@ package com.sabgil.processor.analyzer.step
 import com.sabgil.processor.analyzer.model.Parameterizable.Empty
 import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.activityPackage
+import com.sabgil.processor.types.activityPackageName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 
@@ -16,7 +16,7 @@ class NavigatorOwnerCheckStep : Step<Empty, Empty>() {
         input: Empty
     ): Empty {
         val elementTypeMirror = rootElement.asType()
-        val activityTypeMirror = env.typeElement(activityPackage).asType()
+        val activityTypeMirror = env.typeElement(activityPackageName).asType()
 
         if (!env.isAssignable(elementTypeMirror, activityTypeMirror)) {
             // TODO : error report

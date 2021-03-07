@@ -1,11 +1,18 @@
 package com.sabgil.processor.types
 
-val activityPackage = "android.app.Activity"
+import com.sabgil.annotation.Factory
+import com.sabgil.annotation.Navigator
 
-val serializablePackage = "java.io.Serializable"
+const val activityPackageName = "android.app.Activity"
 
-val parcelablePackage = "android.os.Parcelable"
+const val serializablePackageName = "java.io.Serializable"
 
-val bundleExtraHolderPackage = "test" // TODO : replace real class name
+const val parcelablePackageName = "android.os.Parcelable"
+
+const val bundleExtraHolderPackageName = "test" // TODO : replace real class name
+
+val navigatorPackageName = Navigator::class.java.canonicalName
+
+val factoryPackageName = Factory::class.java.canonicalName
 
 val fragmentClassData = "androidx.fragment.app.Fragment"

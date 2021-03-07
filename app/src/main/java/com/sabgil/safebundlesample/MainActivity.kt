@@ -8,10 +8,11 @@ import com.sabgil.annotation.Navigator
 import java.io.Serializable
 import kotlin.reflect.KProperty
 
-@Navigator(QQ::class)
+@Navigator(Q::class)
 class MainActivity : AppCompatActivity() {
 
     private val test by extraOf<QSE>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

@@ -4,9 +4,9 @@ import com.sabgil.processor.analyzer.model.ArgumentsCheckResult
 import com.sabgil.processor.analyzer.model.Parameterizable.Empty
 import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
-import com.sabgil.processor.types.bundleExtraHolderPackage
-import com.sabgil.processor.types.parcelablePackage
-import com.sabgil.processor.types.serializablePackage
+import com.sabgil.processor.types.bundleExtraHolderPackageName
+import com.sabgil.processor.types.parcelablePackageName
+import com.sabgil.processor.types.serializablePackageName
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -22,7 +22,7 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
         env: ProcessingEnvironment,
         input: Empty
     ): ArgumentsCheckResult {
-        val bundleExtraHolderTypeMirror = env.typeElement(bundleExtraHolderPackage).asType()
+        val bundleExtraHolderTypeMirror = env.typeElement(bundleExtraHolderPackageName).asType()
         val delegateFields = rootElement.enclosedElements
             .filterIsInstance<VariableElement>()
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }
@@ -52,8 +52,8 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
         .capitalize(Locale.ROOT)
 
     private fun ProcessingEnvironment.isSerializableOrParcelable(type: TypeMirror): Boolean {
-        val serializableTypeMirror = typeElement(serializablePackage).asType()
-        val parcelableTypeMirror = typeElement(parcelablePackage).asType()
+        val serializableTypeMirror = typeElement(serializablePackageName).asType()
+        val parcelableTypeMirror = typeElement(parcelablePackageName).asType()
         return isAssignable(type, serializableTypeMirror)
                 || isAssignable(type, parcelableTypeMirror)
     }

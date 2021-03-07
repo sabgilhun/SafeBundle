@@ -1,9 +1,7 @@
 package com.sabgil.processor.utils
 
 import com.squareup.kotlinpoet.ClassName
-import javax.lang.model.element.Element
-import javax.lang.model.element.PackageElement
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
 
 fun Element.packageElement(): PackageElement {
     var element = this
@@ -31,3 +29,6 @@ fun Element.outerClassElement(): TypeElement {
 fun Element.outerClassSimpleName(): String = outerClassElement().simpleName.toString()
 
 fun Element.toClassName(): ClassName = ClassName(packageName(), outerClassSimpleName())
+
+val Element.isAbstract
+    get() = modifiers.contains(Modifier.ABSTRACT)

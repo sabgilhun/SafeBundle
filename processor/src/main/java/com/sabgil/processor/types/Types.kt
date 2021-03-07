@@ -21,4 +21,6 @@ val navigatorPackageName: String = Navigator::class.java.canonicalName
 
 val factoryPackageName: String = Factory::class.java.canonicalName
 
+val unitPackageName: String = Unit::class.java.canonicalName
+
 val fragmentClassData = "androidx.fragment.app.Fragment"

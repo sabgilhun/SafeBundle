@@ -7,6 +7,7 @@ import com.sabgil.processor.analyzer.AnnotationAnalyzer
 import com.sabgil.processor.analyzer.step.ArgumentsCheckStep
 import com.sabgil.processor.analyzer.step.NavigatorOwnerCheckStep
 import com.sabgil.processor.analyzer.step.NavigatorTargetCheckStep
+import com.sabgil.processor.analyzer.step.NavigatorTargetFunctionsCheckStep
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
@@ -33,6 +34,7 @@ class SafeBundleProcessor : AbstractProcessor() {
                     .chain(NavigatorOwnerCheckStep())
                     .chain(ArgumentsCheckStep())
                     .chain(NavigatorTargetCheckStep())
+                    .chain(NavigatorTargetFunctionsCheckStep())
                     .result()
 
                 println(result)

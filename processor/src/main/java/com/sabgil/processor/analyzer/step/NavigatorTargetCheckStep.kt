@@ -6,10 +6,10 @@ import com.sabgil.processor.ext.isAssignable
 import com.sabgil.processor.ext.typeElement
 import com.sabgil.processor.types.contextBasedNavigatorMarkPackageName
 import com.sabgil.processor.types.navigatorPackageName
+import com.sabgil.processor.utils.isAbstract
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 
 
 class NavigatorTargetCheckStep : Step<ArgumentsCheckResult, NavigatorTargetCheckResult>() {
@@ -25,9 +25,7 @@ class NavigatorTargetCheckStep : Step<ArgumentsCheckResult, NavigatorTargetCheck
 
         val targetElement = env.typeElement(extractAnnotationValue(annotationMirror))
 
-        println(isAbstract(targetElement))
-        println(env.isImplementMark(targetElement))
-        if (!isAbstract(targetElement) || !env.isImplementMark(targetElement)) {
+        if (!targetElement.isAbstract || !env.isImplementMark(targetElement)) {
             TODO("NavigatorTargetCheckStep, error report")
         }
 
@@ -40,8 +38,6 @@ class NavigatorTargetCheckStep : Step<ArgumentsCheckResult, NavigatorTargetCheck
         }
         return requireNotNull(annotationMirror.elementValues[key]?.value?.toString())
     }
-
-    private fun isAbstract(element: Element) = element.modifiers.contains(Modifier.ABSTRACT)
 
     private fun ProcessingEnvironment.isImplementMark(element: Element) =
         isAssignable(element.asType(), typeElement(contextBasedNavigatorMarkPackageName).asType())

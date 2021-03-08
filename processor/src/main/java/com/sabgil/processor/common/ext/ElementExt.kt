@@ -1,6 +1,7 @@
 package com.sabgil.processor.common.ext
 
 import com.squareup.kotlinpoet.ClassName
+import org.jetbrains.annotations.Nullable
 import javax.lang.model.element.*
 
 fun Element.packageElement(): PackageElement {
@@ -32,3 +33,17 @@ fun Element.toClassName(): ClassName = ClassName(packageName(), outerClassSimple
 
 val Element.isAbstract
     get() = modifiers.contains(Modifier.ABSTRACT)
+
+val VariableElement.isNullable
+    get(): Boolean {
+        val nullableAnnotation = annotationMirrors.find {
+            it.annotationType.asElement().toString() == Nullable::class.java.canonicalName
+        }
+        val isPrimitive = asType().kind.isPrimitive
+
+        return if (isPrimitive) {
+            false
+        } else {
+            nullableAnnotation != null
+        }
+    }

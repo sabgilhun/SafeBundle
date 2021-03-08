@@ -4,13 +4,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.sabgil.annotation.Navigator
 import com.sabgil.safebundle.BundleValueHolder
-import com.sabgil.safebundle.BundleValueHolderNonNull
 import com.sabgil.safebundle.ContextBasedNavigatorMark
 
 @Navigator(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
 
-    private val param1 by extraOf<String?>()
+    private val param1 by bundleOf<String>()
+
+    private val param2 by bundleOf<Int>()
 
     val a: String? = null
 
@@ -20,14 +21,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     interface Navigator : ContextBasedNavigatorMark {
-        fun a(param1: String)
+        fun a(param1: String, param2: Int)
     }
 }
 
-
-fun <B> extraOf(): BundleValueHolder<B?> {
-    return BundleValueHolder {
-        @Suppress("UNCHECKED_CAST")
-        Any() as B?
-    }
+fun <T> bundleOf() = BundleValueHolder {
+    @Suppress("UNCHECKED_CAST")
+    Any() as T
 }

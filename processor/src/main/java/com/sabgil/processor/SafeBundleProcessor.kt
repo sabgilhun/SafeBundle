@@ -5,12 +5,23 @@ import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
 import com.sabgil.processor.analyzer.step.*
 import com.sabgil.processor.common.SequentialStep
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
+import com.squareup.kotlinpoet.metadata.toKotlinClassMetadata
+import kotlinx.metadata.jvm.KotlinClassHeader
+import kotlinx.metadata.jvm.KotlinClassMetadata
+import kotlinx.metadata.jvm.isRaw
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeMirror
 
+@KotlinPoetMetadataPreview
 @AutoService(Processor::class)
 class SafeBundleProcessor : AbstractProcessor() {
 
@@ -41,4 +52,5 @@ class SafeBundleProcessor : AbstractProcessor() {
 
         return true
     }
+
 }

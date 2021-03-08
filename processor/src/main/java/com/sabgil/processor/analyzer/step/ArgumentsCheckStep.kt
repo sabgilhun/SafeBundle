@@ -6,19 +6,24 @@ import com.sabgil.processor.common.Step
 import com.sabgil.processor.common.ext.erasure
 import com.sabgil.processor.common.ext.isAssignable
 import com.sabgil.processor.common.ext.typeElement
+import com.sabgil.processor.common.model.DelegateElement
 import com.sabgil.processor.common.types.bundleValueHolderPackageName
 import com.sabgil.processor.common.types.parcelablePackageName
 import com.sabgil.processor.common.types.serializablePackageName
-import java.lang.reflect.AnnotatedParameterizedType
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.*
-import javax.lang.model.type.DeclaredType
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
 
 class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
 
+    @KotlinPoetMetadataPreview
     override fun process(
         rootElement: Element,
         env: ProcessingEnvironment,
@@ -33,29 +38,39 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }
             .filter { it.asType() == bundleExtraHolderTypeMirror }
 
-        delegateFields.forEach {
-            val type = it.asType()
-            if (type is DeclaredType) {
-                val capture = env.typeUtils.capture(type)
-                val erasure = env.typeUtils.erasure(type)
-                val element = env.typeUtils.asElement(type)
-                env.typeUtils.nullType
-                println("element: ${env.typeUtils.nullType}")
-            }
-        }
-
-        val rawFiledNames = delegateFields.map { toFieldName(it) }
-        val getterNames = rawFiledNames.map { toGetterName(it) }
+        val rawFieldNames = delegateFields.map { toFieldName(it) }
+        val getterNames = rawFieldNames.map { toGetterName(it) }
 
         val getters = rootElement.enclosedElements
             .filterIsInstance<ExecutableElement>()
             .filter { getterNames.contains(it.simpleName.toString()) }
 
+        val properties = (rootElement as TypeElement).toTypeSpec()
+            .propertySpecs
+            .filter { it.delegated }
+
         if (!getters.all { env.isSerializableOrParcelable(it.returnType) }) {
             TODO("ArgumentsCheckStep, error report")
         }
 
-        return ArgumentsCheckResult(rawFiledNames.zip(delegateFields.zip(getters)).toMap())
+        if (delegateFields.size != properties.size) {
+            TODO("ArgumentsCheckStep, error report")
+        }
+
+        val delegateElements = delegateFields.indices.map {
+            DelegateElement(
+                variable = delegateFields[it],
+                getter = getters[it],
+                type = getters[it].returnType.toString(),
+                isNullable = properties[it].type.isNullable
+            )
+        }
+
+        delegateElements.forEach {
+            println(it)
+        }
+
+        return ArgumentsCheckResult(rawFieldNames.zip(delegateElements).toMap())
     }
 
     private fun toFieldName(delegateField: Element) = delegateField

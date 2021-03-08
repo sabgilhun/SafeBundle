@@ -3,10 +3,7 @@ package com.sabgil.processor
 import com.google.auto.service.AutoService
 import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
-import com.sabgil.processor.analyzer.step.ArgumentsCheckStep
-import com.sabgil.processor.analyzer.step.NavigatorOwnerCheckStep
-import com.sabgil.processor.analyzer.step.NavigatorTargetCheckStep
-import com.sabgil.processor.analyzer.step.NavigatorTargetFunctionsCheckStep
+import com.sabgil.processor.analyzer.step.*
 import com.sabgil.processor.common.SequentialStep
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
@@ -35,6 +32,7 @@ class SafeBundleProcessor : AbstractProcessor() {
                     .chain(ArgumentsCheckStep())
                     .chain(NavigatorTargetCheckStep())
                     .chain(NavigatorTargetFunctionsCheckStep())
+                    .chain(TargetFunctionArgumentsCheckStep())
                     .result()
 
                 println(result)

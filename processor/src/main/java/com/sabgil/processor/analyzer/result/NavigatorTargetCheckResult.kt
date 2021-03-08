@@ -6,6 +6,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 
 data class NavigatorTargetCheckResult(
-    val argumentsMap: Map<VariableElement, ExecutableElement>,
+    val argumentsMap: Map<String, Pair<VariableElement, ExecutableElement>>,
     val targetElement: Element
 ) : Parameterizable

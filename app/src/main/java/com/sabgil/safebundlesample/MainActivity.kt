@@ -1,67 +1,33 @@
 package com.sabgil.safebundlesample
 
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import com.sabgil.annotation.Navigator
 import com.sabgil.safebundle.BundleValueHolder
+import com.sabgil.safebundle.BundleValueHolderNonNull
 import com.sabgil.safebundle.ContextBasedNavigatorMark
-import java.io.Serializable
 
-@Navigator(QQ::class)
+@Navigator(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
 
-    private val test by extraOf<Q>()
+    private val param1 by extraOf<String?>()
+
+    val a: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
 
-
+    interface Navigator : ContextBasedNavigatorMark {
+        fun a(param1: String)
+    }
 }
 
 
-fun <B> extraOf(): BundleValueHolder<B> {
+fun <B> extraOf(): BundleValueHolder<B?> {
     return BundleValueHolder {
         @Suppress("UNCHECKED_CAST")
-        Any() as B
+        Any() as B?
     }
-}
-
-interface QQ : ContextBasedNavigatorMark {
-    fun a()
-    fun b()
-}
-
-abstract class QQA {}
-
-abstract class Q : Serializable {
-
-}
-
-class QSE() : Parcelable, Serializable {
-
-    constructor(parcel: Parcel) : this() {
-    }
-
-    override fun describeContents(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        TODO("Not yet implemented")
-    }
-
-    companion object CREATOR : Parcelable.Creator<QSE> {
-        override fun createFromParcel(parcel: Parcel): QSE {
-            return QSE(parcel)
-        }
-
-        override fun newArray(size: Int): Array<QSE?> {
-            return arrayOfNulls(size)
-        }
-    }
-
 }

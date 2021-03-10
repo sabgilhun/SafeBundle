@@ -17,6 +17,10 @@ const val activityBasedNavigatorMarkPackageName = "com.sabgil.safebundle.Activit
 
 const val factoryMarkPackageName = "com.sabgil.safebundle.FactoryMark"
 
+const val contextPackageName = "android.content.Context"
+
+const val intentPackageName = "android.content.Intent"
+
 val navigatorPackageName: String = Navigator::class.java.canonicalName
 
 val factoryPackageName: String = Factory::class.java.canonicalName

@@ -3,6 +3,7 @@ package com.sabgil.processor.generator
 import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.AnalyzedResult
+import com.sabgil.processor.common.types.intentPackageName
 import com.squareup.kotlinpoet.*
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -18,6 +19,13 @@ class NavigatorImplGenerator(
 
     private fun classBuild(): TypeSpec =
         TypeSpec.classBuilder(analyzedResult.rootElement.toClassName().simpleName + "_Navigator_Impl")
+            .addProperty("context", ClassName("android.content", "Context"), KModifier.PRIVATE)
+            .addFunction(
+                FunSpec.constructorBuilder()
+                    .addParameter("context", ClassName("android.content", "Context"))
+                    .addStatement("this.%N = %N", "context", "context")
+                    .build()
+            )
             .addSuperinterface(
                 ClassName(
                     analyzedResult.targetElement.packageName(),
@@ -32,6 +40,7 @@ class NavigatorImplGenerator(
             FunSpec.builder(it.simpleName.toString())
                 .addModifiers(KModifier.OVERRIDE)
                 .addImplFunParams(it)
+                .addCodeBlock(it)
                 .build()
         }
         addFunctions(funSpecs)
@@ -48,6 +57,19 @@ class NavigatorImplGenerator(
                 .build()
         }
         addParameters(paramSpecs)
+        return this
+    }
+
+    private fun FunSpec.Builder.addCodeBlock(executableElement: ExecutableElement): FunSpec.Builder {
+        addStatement(
+            "val i = %L(context, %T::class.java)",
+            intentPackageName,
+            analyzedResult.rootElement.asType()
+        )
+        executableElement.parameters.map {
+            addStatement("i.putExtra(%S, %L)", it.simpleName.toString(), it.simpleName.toString())
+        }
+        addStatement("context.startActivity(i)")
         return this
     }
 }

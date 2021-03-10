@@ -5,21 +5,15 @@ import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
 import com.sabgil.processor.analyzer.step.*
 import com.sabgil.processor.common.SequentialStep
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.asTypeName
+import com.sabgil.processor.common.model.AnalyzedResult
+import com.sabgil.processor.generator.NavigatorImplGenerator
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
-import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
-import com.squareup.kotlinpoet.metadata.toKotlinClassMetadata
-import kotlinx.metadata.jvm.KotlinClassHeader
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import kotlinx.metadata.jvm.isRaw
+import java.io.File
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 
 @KotlinPoetMetadataPreview
 @AutoService(Processor::class)
@@ -46,11 +40,22 @@ class SafeBundleProcessor : AbstractProcessor() {
                     .chain(TargetFunctionArgumentsCheckStep())
                     .result()
 
-                println(result)
+                val analyzedResult = AnalyzedResult(
+                    it,
+                    result.argumentsMap,
+                    result.targetElement,
+                    result.targetFunctionElements
+                )
+
+                val fileSpec = NavigatorImplGenerator(analyzedResult).generator()
+                fileSpec.writeTo(createKotlinGeneratedDir())
             }
         }
 
         return true
     }
 
+    private fun createKotlinGeneratedDir() = File(
+        processingEnv.options["kapt.kotlin.generated"], ""
+    )
 }

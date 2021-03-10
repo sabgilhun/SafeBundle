@@ -61,7 +61,7 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
             DelegateElement(
                 variable = delegateFields[it],
                 getter = getters[it],
-                type = getters[it].returnType.toString(),
+                type = properties[it].type,
                 isNullable = properties[it].type.isNullable
             )
         }

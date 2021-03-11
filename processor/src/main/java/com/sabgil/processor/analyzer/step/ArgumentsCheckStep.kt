@@ -5,6 +5,7 @@ import com.sabgil.processor.common.Parameterizable.Empty
 import com.sabgil.processor.common.Step
 import com.sabgil.processor.common.ext.erasure
 import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.name
 import com.sabgil.processor.common.ext.typeElement
 import com.sabgil.processor.common.model.kelement.KotlinDelegateElement
 import com.sabgil.processor.common.types.bundleValueHolderPackageName
@@ -38,36 +39,33 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }
             .filter { it.asType() == bundleExtraHolderTypeMirror }
 
-        val rawFieldNames = delegateFields.map { toFieldName(it) }
-        val getterNames = rawFieldNames.map { toGetterName(it) }
-
         val getters = rootElement.enclosedElements
             .filterIsInstance<ExecutableElement>()
-            .filter { getterNames.contains(it.simpleName.toString()) }
 
         val properties = (rootElement as TypeElement).toTypeSpec()
             .propertySpecs
-            .filter { it.delegated && rawFieldNames.contains(it.name) }
+            .filter { it.delegated }
 
-        if (!getters.all { env.isSerializableOrParcelable(it.returnType) }) {
-            TODO("ArgumentsCheckStep, error report")
-        }
+        val argumentsMap = mutableMapOf<String, KotlinDelegateElement>()
+        delegateFields.forEach { field ->
+            val rawFieldName = toFieldName(field)
 
-        if (delegateFields.size != getters.size && getters.size != properties.size) {
-            TODO("ArgumentsCheckStep, error report")
-        }
+            val property = properties.first { it.name == rawFieldName }
 
-        val delegateElements = delegateFields.indices.map {
-            KotlinDelegateElement(
-                properties[it],
-                delegateFields[it],
-                getters[it]
+            val getter = getters.first { it.name == toGetterName(rawFieldName) }
+
+            if (!env.isSerializableOrParcelable(getter.returnType)) {
+                TODO("ArgumentsCheckStep, error report")
+            }
+
+            argumentsMap[rawFieldName] = KotlinDelegateElement(
+                property,
+                field,
+                getter
             )
         }
 
-        return ArgumentsCheckResult(
-            delegateElements.map { it.kotlinProperty.name to it }.toMap()
-        )
+        return ArgumentsCheckResult(argumentsMap)
     }
 
     private fun toFieldName(delegateField: Element) = delegateField

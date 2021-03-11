@@ -6,7 +6,7 @@ import com.sabgil.annotation.Navigator
 import com.sabgil.processor.analyzer.step.*
 import com.sabgil.processor.common.SequentialStep
 import com.sabgil.processor.common.model.AnalyzedResult
-import com.sabgil.processor.generator.NavigatorImplGenerator
+import com.sabgil.processor.generator.NavigatorCodeGenerator
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import java.io.File
 import javax.annotation.processing.AbstractProcessor
@@ -47,7 +47,7 @@ class SafeBundleProcessor : AbstractProcessor() {
                     result.targetFunctionElements
                 )
 
-                val fileSpec = NavigatorImplGenerator(analyzedResult).generator()
+                val fileSpec = NavigatorCodeGenerator(analyzedResult).generator()
                 fileSpec.writeTo(createKotlinGeneratedDir())
             }
         }

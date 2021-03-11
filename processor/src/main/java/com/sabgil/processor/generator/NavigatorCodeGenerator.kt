@@ -10,7 +10,7 @@ import com.sabgil.processor.common.types.intentPackageName
 import com.squareup.kotlinpoet.*
 import javax.lang.model.element.ExecutableElement
 
-class NavigatorImplGenerator(
+class NavigatorCodeGenerator(
     private val analyzedResult: AnalyzedResult
 ) {
     private val packageName = analyzedResult.rootElement.packageName()
@@ -49,16 +49,11 @@ class NavigatorImplGenerator(
         val funSpecs = analyzedResult.targetFunctionElements.map {
             FunSpec.builder(it.kotlinFun.name)
                 .addModifiers(KModifier.OVERRIDE)
-                .addImplFunParams(it.kotlinFun)
+                .addParameters(it.kotlinFun.parameters)
                 .addCodeBlock(it.kotlinFun)
                 .build()
         }
         addFunctions(funSpecs)
-        return this
-    }
-
-    private fun FunSpec.Builder.addImplFunParams(funSpec: FunSpec): FunSpec.Builder {
-        addParameters(funSpec.parameters)
         return this
     }
 

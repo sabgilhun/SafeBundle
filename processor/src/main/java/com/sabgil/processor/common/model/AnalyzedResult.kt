@@ -1,11 +1,12 @@
 package com.sabgil.processor.common.model
 
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
+import com.sabgil.processor.common.model.kelement.KotlinDelegateElement
+import com.sabgil.processor.common.model.kelement.KotlinFunElement
+import javax.lang.model.element.TypeElement
 
 data class AnalyzedResult(
-    val rootElement: Element,
-    val argumentsMap: Map<String, DelegateElement>,
-    val targetElement: Element,
-    val targetFunctionElements: List<ExecutableElement>
+    val rootElement: TypeElement,
+    val argumentsMap: Map<String, KotlinDelegateElement>,
+    val targetElement: TypeElement,
+    val targetFunctionElements: List<KotlinFunElement>
 )

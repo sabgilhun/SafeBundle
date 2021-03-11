@@ -17,22 +17,22 @@ class TargetFunctionArgumentsCheckStep :
         input: NavigatorTargetFunctionsCheckResult
     ): NavigatorTargetFunctionsCheckResult {
         input.targetFunctionElements.forEach { func ->
-            val bundleParamNames = input.argumentsMap.keys.toMutableList()
-            func.parameters.forEach { param ->
-                val paramName = param.simpleName.toString()
-                val delegateElement = requireNotNull(input.argumentsMap[paramName])
-
-                if (!bundleParamNames.remove(paramName) ||
-                    !env.isAssignable(param.asType(), delegateElement.getter.returnType) ||
-                    (param.isNullable && !delegateElement.isNullable)
-                ) {
-                    TODO("TargetFunctionArgumentsCheckStep, error report")
-                }
-            }
-
-            if (!bundleParamNames.none { !requireNotNull(input.argumentsMap[it]).isNullable }) {
-                TODO("TargetFunctionArgumentsCheckStep, error report")
-            }
+//            val bundleParamNames = input.argumentsMap.keys.toMutableList()
+//            func.parameters.forEach { param ->
+//                val paramName = param.name
+//                val delegateElement = requireNotNull(input.argumentsMap[paramName])
+//
+////                if (!bundleParamNames.remove(paramName) ||
+////                    !env.isAssignable(param.type, delegateElement.getter.returnType) ||
+////                    (param.isNullable && !delegateElement.isNullable)
+////                ) {
+////                    TODO("TargetFunctionArgumentsCheckStep, error report")
+////                }
+//            }
+//
+//            if (!bundleParamNames.none { !requireNotNull(input.argumentsMap[it]).isNullable }) {
+//                TODO("TargetFunctionArgumentsCheckStep, error report")
+//            }
         }
 
         return input

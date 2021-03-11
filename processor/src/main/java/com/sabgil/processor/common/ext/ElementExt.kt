@@ -29,7 +29,13 @@ fun Element.outerClassElement(): TypeElement {
 
 fun Element.outerClassSimpleName(): String = outerClassElement().simpleName.toString()
 
-fun Element.toClassName(): ClassName = ClassName(packageName(), outerClassSimpleName())
+fun TypeElement.toClassName(): ClassName {
+    val packageNames = packageElement().qualifiedName.split(".")
+    val fullNames = qualifiedName.split(".").toMutableList().apply { removeAll(packageNames) }
+    return ClassName(packageNames.joinToString("."), fullNames.joinToString("."))
+}
+
+val Element.name: String get() = this.simpleName.toString()
 
 val Element.isAbstract
     get() = modifiers.contains(Modifier.ABSTRACT)

@@ -2,6 +2,7 @@ package com.sabgil.processor.common.types
 
 import com.sabgil.annotation.Factory
 import com.sabgil.annotation.Navigator
+import com.squareup.kotlinpoet.ClassName
 
 const val activityPackageName = "android.app.Activity"
 
@@ -28,3 +29,6 @@ val factoryPackageName: String = Factory::class.java.canonicalName
 val unitPackageName: String = Unit::class.java.canonicalName
 
 val fragmentClassData = "androidx.fragment.app.Fragment"
+
+
+val contextClassName = ClassName("android.content", "Context")

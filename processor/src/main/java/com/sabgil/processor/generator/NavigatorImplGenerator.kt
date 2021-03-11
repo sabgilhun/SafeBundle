@@ -1,75 +1,93 @@
 package com.sabgil.processor.generator
 
+import com.sabgil.processor.common.ext.lowerSimpleName
+import com.sabgil.processor.common.ext.name
 import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.AnalyzedResult
+import com.sabgil.processor.common.types.contextClassName
 import com.sabgil.processor.common.types.intentPackageName
 import com.squareup.kotlinpoet.*
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
 
 class NavigatorImplGenerator(
     private val analyzedResult: AnalyzedResult
 ) {
-    fun generator() = FileSpec.builder(
-        analyzedResult.rootElement.packageName(),
-        analyzedResult.rootElement.toClassName().simpleName + "_Navigator_Impl"
-    ).addType(classBuild())
+    private val packageName = analyzedResult.rootElement.packageName()
+
+    private val className = "${analyzedResult.rootElement.toClassName().simpleName}_Navigator_Impl"
+
+    private val targetClassName = analyzedResult.targetElement.toClassName()
+
+    fun generator() = FileSpec.builder(packageName, className)
+        .addType(classBuild())
         .build()
 
     private fun classBuild(): TypeSpec =
-        TypeSpec.classBuilder(analyzedResult.rootElement.toClassName().simpleName + "_Navigator_Impl")
-            .addProperty("context", ClassName("android.content", "Context"), KModifier.PRIVATE)
-            .addFunction(
-                FunSpec.constructorBuilder()
-                    .addParameter("context", ClassName("android.content", "Context"))
-                    .addStatement("this.%N = %N", "context", "context")
-                    .build()
-            )
-            .addSuperinterface(
-                ClassName(
-                    analyzedResult.targetElement.packageName(),
-                    (analyzedResult.targetElement as TypeElement).qualifiedName.toString()
-                )
-            )
+        TypeSpec.classBuilder(className)
+            .addConstructor()
+            .addSuperinterface(targetClassName)
             .addImplFunctions()
             .build()
 
+    private fun TypeSpec.Builder.addConstructor(): TypeSpec.Builder {
+        addPropertyWithClassName(contextClassName, KModifier.PRIVATE)
+            .addFunction(
+                FunSpec.constructorBuilder()
+                    .addParameterWithClassName(contextClassName)
+                    .addStatement(
+                        "this.%N = %N",
+                        contextClassName.lowerSimpleName,
+                        contextClassName.lowerSimpleName
+                    )
+                    .build()
+            )
+        return this
+    }
+
     private fun TypeSpec.Builder.addImplFunctions(): TypeSpec.Builder {
         val funSpecs = analyzedResult.targetFunctionElements.map {
-            FunSpec.builder(it.simpleName.toString())
+            FunSpec.builder(it.kotlinFun.name)
                 .addModifiers(KModifier.OVERRIDE)
-                .addImplFunParams(it)
-                .addCodeBlock(it)
+                .addImplFunParams(it.kotlinFun)
+                .addCodeBlock(it.kotlinFun)
                 .build()
         }
         addFunctions(funSpecs)
         return this
     }
 
-    private fun FunSpec.Builder.addImplFunParams(executableElement: ExecutableElement): FunSpec.Builder {
-        val paramSpecs = executableElement.parameters.map {
-            ParameterSpec
-                .builder(
-                    it.simpleName.toString(),
-                    analyzedResult.argumentsMap[it.simpleName.toString()]?.type!!
-                )
-                .build()
-        }
-        addParameters(paramSpecs)
+    private fun FunSpec.Builder.addImplFunParams(funSpec: FunSpec): FunSpec.Builder {
+        addParameters(funSpec.parameters)
         return this
     }
 
-    private fun FunSpec.Builder.addCodeBlock(executableElement: ExecutableElement): FunSpec.Builder {
+    private fun FunSpec.Builder.addCodeBlock(funSpec: FunSpec): FunSpec.Builder {
         addStatement(
             "val i = %L(context, %T::class.java)",
             intentPackageName,
             analyzedResult.rootElement.asType()
         )
-        executableElement.parameters.map {
-            addStatement("i.putExtra(%S, %L)", it.simpleName.toString(), it.simpleName.toString())
+        funSpec.parameters.map {
+            addStatement("i.putExtra(%S, %L)", it.name, it.name)
         }
         addStatement("context.startActivity(i)")
+        return this
+    }
+
+    private fun TypeSpec.Builder.addPropertyWithClassName(
+        className: ClassName,
+        vararg modifiers: KModifier
+    ): TypeSpec.Builder {
+        addProperty(className.lowerSimpleName, className, *modifiers)
+        return this
+    }
+
+    private fun FunSpec.Builder.addParameterWithClassName(
+        className: ClassName,
+        vararg modifiers: KModifier
+    ): FunSpec.Builder {
+        addParameter(className.lowerSimpleName, className, *modifiers)
         return this
     }
 }

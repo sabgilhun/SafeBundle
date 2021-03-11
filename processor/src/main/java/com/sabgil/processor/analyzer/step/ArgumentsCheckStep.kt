@@ -6,7 +6,7 @@ import com.sabgil.processor.common.Step
 import com.sabgil.processor.common.ext.erasure
 import com.sabgil.processor.common.ext.isAssignable
 import com.sabgil.processor.common.ext.typeElement
-import com.sabgil.processor.common.model.DelegateElement
+import com.sabgil.processor.common.model.kelement.KotlinDelegateElement
 import com.sabgil.processor.common.types.bundleValueHolderPackageName
 import com.sabgil.processor.common.types.parcelablePackageName
 import com.sabgil.processor.common.types.serializablePackageName
@@ -47,30 +47,27 @@ class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
 
         val properties = (rootElement as TypeElement).toTypeSpec()
             .propertySpecs
-            .filter { it.delegated }
+            .filter { it.delegated && rawFieldNames.contains(it.name) }
 
         if (!getters.all { env.isSerializableOrParcelable(it.returnType) }) {
             TODO("ArgumentsCheckStep, error report")
         }
 
-        if (delegateFields.size != properties.size) {
+        if (delegateFields.size != getters.size && getters.size != properties.size) {
             TODO("ArgumentsCheckStep, error report")
         }
 
         val delegateElements = delegateFields.indices.map {
-            DelegateElement(
-                variable = delegateFields[it],
-                getter = getters[it],
-                type = properties[it].type,
-                isNullable = properties[it].type.isNullable
+            KotlinDelegateElement(
+                properties[it],
+                delegateFields[it],
+                getters[it]
             )
         }
 
-        delegateElements.forEach {
-            println(it)
-        }
-
-        return ArgumentsCheckResult(rawFieldNames.zip(delegateElements).toMap())
+        return ArgumentsCheckResult(
+            delegateElements.map { it.kotlinProperty.name to it }.toMap()
+        )
     }
 
     private fun toFieldName(delegateField: Element) = delegateField

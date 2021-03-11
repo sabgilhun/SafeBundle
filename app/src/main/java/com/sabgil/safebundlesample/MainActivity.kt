@@ -9,7 +9,7 @@ import com.sabgil.safebundle.ContextBasedNavigatorMark
 @Navigator(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
 
-    private val param1 by bundleOf<String>()
+    private val param1 by bundleOf<String?>()
 
     private val param2 by bundleOf<Int>()
 
@@ -21,7 +21,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     interface Navigator : ContextBasedNavigatorMark {
-        fun a(param1: String, param2: Int)
+        fun start(param1: String?, param2: Int)
+        fun start(param2: Int)
     }
 }
 

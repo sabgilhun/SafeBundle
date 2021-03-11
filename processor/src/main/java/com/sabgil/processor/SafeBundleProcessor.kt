@@ -41,9 +41,9 @@ class SafeBundleProcessor : AbstractProcessor() {
                     .result()
 
                 val analyzedResult = AnalyzedResult(
-                    it,
+                    it as TypeElement,
                     result.argumentsMap,
-                    result.targetElement,
+                    result.targetElement as TypeElement,
                     result.targetFunctionElements
                 )
 

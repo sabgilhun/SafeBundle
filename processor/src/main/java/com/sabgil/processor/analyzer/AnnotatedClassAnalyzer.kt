@@ -14,9 +14,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
-class AnnotatedClassAnalyzer(
-    private val env: ProcessingEnvironment
-) {
+class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
 
     fun analyze(annotatedElement: TypeElement): AnnotatedClassAnalyzeResult {
         val inheritanceType = checkInheritance(annotatedElement)

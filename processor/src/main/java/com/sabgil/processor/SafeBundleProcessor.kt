@@ -6,7 +6,6 @@ import com.sabgil.processor.analyzer.AnnotatedClassAnalyzer
 import com.sabgil.processor.analyzer.MatchingChecker
 import com.sabgil.processor.analyzer.TargetClassAnalyzer
 import com.sabgil.processor.generator.CodeGenerator
-import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import java.io.File
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
@@ -33,10 +32,13 @@ class SafeBundleProcessor : AbstractProcessor() {
             val results = annotatedElement
                 .filterIsInstance<TypeElement>()
                 .map {
-                    val annotatedClassAnalyzeResult = annotatedClassAnalyzer.analyze(it)
-                    val targetClassAnalyzeResult = targetClassAnalyzer.analyze(it)
-                    MatchingChecker(annotatedClassAnalyzeResult, targetClassAnalyzeResult)
-                    annotatedClassAnalyzeResult to targetClassAnalyzeResult
+                    val annotatedClassResult =
+                        annotatedClassAnalyzer.analyze(it)
+                    val targetClassResult =
+                        targetClassAnalyzer.analyze(it, annotatedClassResult.inheritanceType)
+
+                    MatchingChecker(annotatedClassResult, targetClassResult).check()
+                    annotatedClassResult to targetClassResult
                 }
 
 

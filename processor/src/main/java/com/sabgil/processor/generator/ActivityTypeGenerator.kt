@@ -18,7 +18,7 @@ class ActivityTypeGenerator(
     private val annotatedClassName = annotatedClassAnalyzeResult.annotatedClassElement.toClassName()
     private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
     private val generatingClassName =
-        "${annotatedClassName.simpleName}_${targetClassName.simpleName}_Impl"
+        "${annotatedClassName.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
 
     fun generate() = FileSpec.builder(packageName, generatingClassName)
         .addType(classBuild())

@@ -1,27 +1,29 @@
 package com.sabgil.processor.analyzer
 
 import com.sabgil.processor.common.ext.*
+import com.sabgil.processor.common.model.InheritanceType
 import com.sabgil.processor.common.model.TargetClassAnalyzeResult
 import com.sabgil.processor.common.model.element.KotlinFunElement
+import com.sabgil.processor.common.types.fragmentClassName
 import com.sabgil.processor.common.types.safeBundleAnnotationClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.UNIT
-import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-class TargetClassAnalyzer(
-    private val env: ProcessingEnvironment
-) {
+class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
 
-    fun analyze(annotatedElement: TypeElement): TargetClassAnalyzeResult {
+    fun analyze(
+        annotatedElement: TypeElement,
+        annotatedClassInheritanceType: InheritanceType
+    ): TargetClassAnalyzeResult {
         val targetClassElement = findTargetClassElement(annotatedElement)
         checkTargetClassDetails(targetClassElement)
 
         val kotlinFunElements = extractKotlinFunElements(targetClassElement)
-        checkFunctionDetails(targetClassElement, kotlinFunElements)
+        checkFunctionDetails(annotatedClassInheritanceType, kotlinFunElements)
 
         return TargetClassAnalyzeResult(
             targetClassElement,
@@ -61,11 +63,22 @@ class TargetClassAnalyzer(
     }
 
     private fun checkFunctionDetails(
-        targetClassElement: TypeElement,
+        annotatedClassInheritanceType: InheritanceType,
         kotlinFunElements: List<KotlinFunElement>
     ) {
-        if (!kotlinFunElements.map { it.kotlinFun }.all { it.returnType != UNIT }) {
-            TODO("TargetClassCheckStep, error report")
+        when (annotatedClassInheritanceType) {
+            InheritanceType.ACTIVITY -> {
+                if (!kotlinFunElements.map { it.kotlinFun }.all { it.returnType != UNIT }) {
+                    TODO("TargetClassCheckStep, error report")
+                }
+            }
+            InheritanceType.FRAGMENT -> {
+                val jvmMethods = kotlinFunElements.map { it.jvmMethod }
+                val fragmentTypeMirror = env.parseToTypeElement(fragmentClassName).asType()
+                if (!jvmMethods.all { it.returnType == fragmentTypeMirror }) {
+                    TODO("TargetClassCheckStep, error report")
+                }
+            }
         }
     }
 }

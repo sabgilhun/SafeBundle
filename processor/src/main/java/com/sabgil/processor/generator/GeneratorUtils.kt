@@ -1,7 +1,7 @@
 package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.lowerSimpleName
-import com.sabgil.processor.common.types.contextClassName
+import com.sabgil.processor.common.model.contextClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec

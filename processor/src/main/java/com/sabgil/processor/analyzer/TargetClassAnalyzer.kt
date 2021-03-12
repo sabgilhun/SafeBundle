@@ -4,8 +4,8 @@ import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.InheritanceType
 import com.sabgil.processor.common.model.TargetClassAnalyzeResult
 import com.sabgil.processor.common.model.element.KotlinFunElement
-import com.sabgil.processor.common.types.fragmentClassName
-import com.sabgil.processor.common.types.safeBundleAnnotationClassName
+import com.sabgil.processor.common.model.fragmentClassName
+import com.sabgil.processor.common.model.safeBundleAnnotationClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec

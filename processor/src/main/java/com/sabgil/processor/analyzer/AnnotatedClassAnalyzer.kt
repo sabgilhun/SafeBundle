@@ -1,10 +1,11 @@
 package com.sabgil.processor.analyzer
 
-import com.sabgil.processor.common.ext.*
-import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
-import com.sabgil.processor.common.model.InheritanceType
+import com.sabgil.processor.common.ext.erasure
+import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.name
+import com.sabgil.processor.common.ext.parseToTypeElement
+import com.sabgil.processor.common.model.*
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
-import com.sabgil.processor.common.types.*
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
@@ -75,12 +76,8 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
 
     private fun toGetterName(rawFieldName: String) = "get" + rawFieldName.capitalize(Locale.ROOT)
 
-    private fun ProcessingEnvironment.isSerializableOrParcelable(type: TypeMirror): Boolean {
-        val serializableTypeMirror = typeElement(serializablePackageName).asType()
-        val parcelableTypeMirror = typeElement(parcelablePackageName).asType()
-        return isAssignable(type, serializableTypeMirror)
-                || isAssignable(type, parcelableTypeMirror)
-    }
+    private fun ProcessingEnvironment.isSerializableOrParcelable(type: TypeMirror) =
+        isAssignable(type, serializableClassName) || isAssignable(type, parcelableClassName)
 
     companion object {
         private const val DELEGATE_SUFFIX = "\$delegate"

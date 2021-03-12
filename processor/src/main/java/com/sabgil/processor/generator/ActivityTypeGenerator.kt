@@ -4,7 +4,6 @@ import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.TargetClassAnalyzeResult
-import com.sabgil.processor.common.types.intentPackageName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -45,8 +44,7 @@ class ActivityTypeGenerator(
 
     private fun FunSpec.Builder.addCodeBlock(funSpec: FunSpec): FunSpec.Builder {
         addStatement(
-            "val i = %L(context, %T::class.java)",
-            intentPackageName,
+            "val i = android.content.Intent(context, %T::class.java)",
             annotatedClassAnalyzeResult.annotatedClassElement.asType()
         )
         funSpec.parameters.map {

@@ -5,7 +5,7 @@ import com.sabgil.annotation.SafeBundle
 
 @SafeBundle(MainFragment.Factory::class)
 class MainFragment : Fragment() {
-    private val param1 by bundle<String>()
+    private val param1 by bundle<String?>()
 
     private val param2 by bundle<Int>()
 

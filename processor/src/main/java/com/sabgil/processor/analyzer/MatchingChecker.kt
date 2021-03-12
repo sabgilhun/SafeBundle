@@ -46,7 +46,7 @@ class MatchingChecker(
 
     private fun checkNullability(parameterSpec: ParameterSpec) {
         val property = requireNotNull(propertiesMap[parameterSpec.name])
-        if (parameterSpec.type.isNullable && property.kotlinProperty.type.isNullable) {
+        if (parameterSpec.type.isNullable && !property.kotlinProperty.type.isNullable) {
             TODO("TargetFunctionArgumentsCheckStep, error report")
         }
     }

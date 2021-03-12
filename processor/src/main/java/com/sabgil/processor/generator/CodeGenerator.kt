@@ -1,25 +1,26 @@
 package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.lowerSimpleName
-import com.sabgil.processor.common.ext.name
 import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
-import com.sabgil.processor.common.model.AnalyzedResult
+import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
+import com.sabgil.processor.common.model.TargetClassAnalyzeResult
 import com.sabgil.processor.common.types.contextClassName
 import com.sabgil.processor.common.types.intentPackageName
 import com.squareup.kotlinpoet.*
-import javax.lang.model.element.ExecutableElement
 
-class NavigatorCodeGenerator(
-    private val analyzedResult: AnalyzedResult
+class CodeGenerator(
+    private val annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
+    private val targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
-    private val packageName = analyzedResult.rootElement.packageName()
+    private val packageName = annotatedClassAnalyzeResult.annotatedClassElement.packageName()
 
-    private val className = "${analyzedResult.rootElement.toClassName().simpleName}_Navigator_Impl"
+    private val className =
+        "${annotatedClassAnalyzeResult.annotatedClassElement.toClassName().simpleName}_Navigator_Impl"
 
-    private val targetClassName = analyzedResult.targetElement.toClassName()
+    private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
 
-    fun generator() = FileSpec.builder(packageName, className)
+    fun generate() = FileSpec.builder(packageName, className)
         .addType(classBuild())
         .build()
 
@@ -46,7 +47,7 @@ class NavigatorCodeGenerator(
     }
 
     private fun TypeSpec.Builder.addImplFunctions(): TypeSpec.Builder {
-        val funSpecs = analyzedResult.targetFunctionElements.map {
+        val funSpecs = targetClassAnalyzeResult.targetClassFunElements.map {
             FunSpec.builder(it.kotlinFun.name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it.kotlinFun.parameters)
@@ -61,7 +62,7 @@ class NavigatorCodeGenerator(
         addStatement(
             "val i = %L(context, %T::class.java)",
             intentPackageName,
-            analyzedResult.rootElement.asType()
+            annotatedClassAnalyzeResult.annotatedClassElement.asType()
         )
         funSpec.parameters.map {
             addStatement("i.putExtra(%S, %L)", it.name, it.name)

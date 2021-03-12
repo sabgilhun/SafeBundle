@@ -1,16 +1,13 @@
-package com.sabgil.processor.analyzer.step
+package com.sabgil.processor.analyzer
 
-import com.sabgil.processor.analyzer.result.ArgumentsCheckResult
-import com.sabgil.processor.common.Parameterizable.Empty
-import com.sabgil.processor.common.Step
 import com.sabgil.processor.common.ext.erasure
 import com.sabgil.processor.common.ext.isAssignable
 import com.sabgil.processor.common.ext.name
 import com.sabgil.processor.common.ext.typeElement
-import com.sabgil.processor.common.model.kelement.KotlinDelegateElement
-import com.sabgil.processor.common.types.bundleValueHolderPackageName
-import com.sabgil.processor.common.types.parcelablePackageName
-import com.sabgil.processor.common.types.serializablePackageName
+import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
+import com.sabgil.processor.common.model.InheritanceType
+import com.sabgil.processor.common.model.element.KotlinDelegateElement
+import com.sabgil.processor.common.types.*
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
@@ -21,51 +18,62 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
-
-class ArgumentsCheckStep : Step<Empty, ArgumentsCheckResult>() {
+class AnnotatedClassAnalyzer(
+    private val env: ProcessingEnvironment
+) {
 
     @KotlinPoetMetadataPreview
-    override fun process(
-        rootElement: Element,
-        env: ProcessingEnvironment,
-        input: Empty
-    ): ArgumentsCheckResult {
+    fun analyze(annotatedElement: TypeElement): AnnotatedClassAnalyzeResult {
+        val inheritanceType = checkInheritance(annotatedElement)
+        val propertiesMap = checkProperties(annotatedElement)
+
+        return AnnotatedClassAnalyzeResult(annotatedElement, inheritanceType, propertiesMap)
+    }
+
+    private fun checkInheritance(annotatedElement: TypeElement): InheritanceType {
+        val elementTypeMirror = annotatedElement.asType()
+
+        return when {
+            env.isAssignable(elementTypeMirror, activityClassName) ->
+                InheritanceType.ACTIVITY
+            env.isAssignable(elementTypeMirror, fragmentClassName) ->
+                InheritanceType.FRAGMENT
+            else -> TODO("checkAssignable, error report")
+        }
+    }
+
+    @KotlinPoetMetadataPreview
+    private fun checkProperties(annotatedElement: TypeElement): Map<String, KotlinDelegateElement> {
         val bundleExtraHolderTypeMirror = env.erasure(
-            env.typeElement(bundleValueHolderPackageName).asType()
+            env.typeElement(bundleValueHolderClassName).asType()
         )
 
-        val delegateFields = rootElement.enclosedElements
+        val delegateFields = annotatedElement.enclosedElements
             .filterIsInstance<VariableElement>()
             .filter { it.simpleName.toString().endsWith(DELEGATE_SUFFIX) }
             .filter { it.asType() == bundleExtraHolderTypeMirror }
 
-        val getters = rootElement.enclosedElements
+        val getters = annotatedElement.enclosedElements
             .filterIsInstance<ExecutableElement>()
 
-        val properties = (rootElement as TypeElement).toTypeSpec()
+        val properties = annotatedElement.toTypeSpec()
             .propertySpecs
             .filter { it.delegated }
 
-        val argumentsMap = mutableMapOf<String, KotlinDelegateElement>()
+        val propertiesMap = mutableMapOf<String, KotlinDelegateElement>()
         delegateFields.forEach { field ->
             val rawFieldName = toFieldName(field)
-
             val property = properties.first { it.name == rawFieldName }
-
             val getter = getters.first { it.name == toGetterName(rawFieldName) }
 
             if (!env.isSerializableOrParcelable(getter.returnType)) {
                 TODO("ArgumentsCheckStep, error report")
             }
 
-            argumentsMap[rawFieldName] = KotlinDelegateElement(
-                property,
-                field,
-                getter
-            )
+            propertiesMap[rawFieldName] = KotlinDelegateElement(property, field, getter)
         }
 
-        return ArgumentsCheckResult(argumentsMap)
+        return propertiesMap
     }
 
     private fun toFieldName(delegateField: Element) = delegateField

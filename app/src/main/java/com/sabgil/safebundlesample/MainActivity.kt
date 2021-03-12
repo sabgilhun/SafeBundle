@@ -2,16 +2,15 @@ package com.sabgil.safebundlesample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.sabgil.annotation.Navigator
+import com.sabgil.annotation.SafeBundle
 import com.sabgil.safebundle.BundleValueHolder
-import com.sabgil.safebundle.ContextBasedNavigatorMark
 
-@Navigator(MainActivity.Navigator::class)
+@SafeBundle(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
 
-    private val param1 by bundleOf<String>()
+    private val param1 by bundle<String>()
 
-    private val param2 by bundleOf<Int>()
+    private val param2 by bundle<Int>()
 
     val a: String? = null
 
@@ -20,12 +19,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    interface Navigator : ContextBasedNavigatorMark {
+    interface Navigator {
         fun start(param1: String, param2: Int)
     }
 }
 
-fun <T> bundleOf() = BundleValueHolder {
+fun <T> bundle() = BundleValueHolder {
     @Suppress("UNCHECKED_CAST")
     Any() as T
 }

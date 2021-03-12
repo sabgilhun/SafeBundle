@@ -1,4 +1,4 @@
-package com.sabgil.processor.common.model.kelement
+package com.sabgil.processor.common.model.element
 
 import com.squareup.kotlinpoet.PropertySpec
 import javax.lang.model.element.ExecutableElement

@@ -1,7 +1,7 @@
 package com.sabgil.processor.common.types
 
-import com.sabgil.annotation.Factory
-import com.sabgil.annotation.Navigator
+import com.sabgil.annotation.SafeBundle
+import com.sabgil.processor.common.ext.toClassName
 import com.squareup.kotlinpoet.ClassName
 
 const val activityPackageName = "android.app.Activity"
@@ -22,9 +22,6 @@ const val contextPackageName = "android.content.Context"
 
 const val intentPackageName = "android.content.Intent"
 
-val navigatorPackageName: String = Navigator::class.java.canonicalName
-
-val factoryPackageName: String = Factory::class.java.canonicalName
 
 val unitPackageName: String = Unit::class.java.canonicalName
 
@@ -32,3 +29,11 @@ val fragmentClassData = "androidx.fragment.app.Fragment"
 
 
 val contextClassName = ClassName("android.content", "Context")
+
+val activityClassName = ClassName("android.app", "Activity")
+
+val fragmentClassName = ClassName("androidx.fragment.app", "Fragment")
+
+val safeBundleAnnotationClassName = SafeBundle::class.java.toClassName()
+
+val bundleValueHolderClassName = "com.sabgil.safebundle.BundleValueHolder"

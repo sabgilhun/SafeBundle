@@ -31,19 +31,24 @@ class SafeBundleProcessor : AbstractProcessor() {
             val annotatedClassAnalyzer = AnnotatedClassAnalyzer(processingEnv)
             val targetClassAnalyzer = TargetClassAnalyzer(processingEnv)
 
-            annotatedElement
+            val results = annotatedElement
                 .filterIsInstance<TypeElement>()
-                .forEach {
+                .map {
                     val annotatedClassAnalyzeResult = annotatedClassAnalyzer.analyze(it)
                     val targetClassAnalyzeResult = targetClassAnalyzer.analyze(it)
                     MatchingChecker(annotatedClassAnalyzeResult, targetClassAnalyzeResult)
-
-                    val fileSpec = CodeGenerator(
-                        annotatedClassAnalyzeResult, targetClassAnalyzeResult
-                    ).generate()
-
-                    fileSpec.writeTo(createKotlinGeneratedDir())
+                    annotatedClassAnalyzeResult to targetClassAnalyzeResult
                 }
+
+
+            results.forEach { (annotatedClassAnalyzeResult, targetClassAnalyzeResult) ->
+                val fileSpec = CodeGenerator(
+                    annotatedClassAnalyzeResult,
+                    targetClassAnalyzeResult
+                ).generate()
+
+                fileSpec.writeTo(createKotlinGeneratedDir())
+            }
         }
 
         return true

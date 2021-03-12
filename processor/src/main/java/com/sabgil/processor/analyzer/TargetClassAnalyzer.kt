@@ -31,7 +31,7 @@ class TargetClassAnalyzer(
     }
 
     private fun findTargetClassElement(annotatedElement: TypeElement): TypeElement {
-        val annotationType = env.parseToTypeElement(safeBundleAnnotationClassName)
+        val annotationType = env.parseToTypeElement(safeBundleAnnotationClassName).asType()
 
         val annotationMirror = annotatedElement.annotationMirrors.first {
             it.annotationType == annotationType

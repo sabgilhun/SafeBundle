@@ -30,6 +30,7 @@ class SafeBundleProcessor : AbstractProcessor() {
         if (annotatedElement.isNotEmpty()) {
             val annotatedClassAnalyzer = AnnotatedClassAnalyzer(processingEnv)
             val targetClassAnalyzer = TargetClassAnalyzer(processingEnv)
+
             annotatedElement
                 .filterIsInstance<TypeElement>()
                 .forEach {

@@ -1,9 +1,6 @@
 package com.sabgil.processor.analyzer
 
-import com.sabgil.processor.common.ext.erasure
-import com.sabgil.processor.common.ext.isAssignable
-import com.sabgil.processor.common.ext.name
-import com.sabgil.processor.common.ext.typeElement
+import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.InheritanceType
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
@@ -45,7 +42,7 @@ class AnnotatedClassAnalyzer(
     @KotlinPoetMetadataPreview
     private fun checkProperties(annotatedElement: TypeElement): Map<String, KotlinDelegateElement> {
         val bundleExtraHolderTypeMirror = env.erasure(
-            env.typeElement(bundleValueHolderClassName).asType()
+            env.parseToTypeElement(bundleValueHolderClassName).asType()
         )
 
         val delegateFields = annotatedElement.enclosedElements

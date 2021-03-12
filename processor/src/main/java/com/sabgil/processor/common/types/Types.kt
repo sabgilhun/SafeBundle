@@ -36,4 +36,4 @@ val fragmentClassName = ClassName("androidx.fragment.app", "Fragment")
 
 val safeBundleAnnotationClassName = SafeBundle::class.java.toClassName()
 
-val bundleValueHolderClassName = "com.sabgil.safebundle.BundleValueHolder"
+val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")

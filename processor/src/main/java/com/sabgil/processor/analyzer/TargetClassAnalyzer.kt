@@ -16,13 +16,12 @@ class TargetClassAnalyzer(
     private val env: ProcessingEnvironment
 ) {
 
-    @KotlinPoetMetadataPreview
     fun analyze(annotatedElement: TypeElement): TargetClassAnalyzeResult {
         val targetClassElement = findTargetClassElement(annotatedElement)
         checkTargetClassDetails(targetClassElement)
 
         val kotlinFunElements = extractKotlinFunElements(targetClassElement)
-        checkFunctionDetails(kotlinFunElements)
+        checkFunctionDetails(targetClassElement, kotlinFunElements)
 
         return TargetClassAnalyzeResult(
             targetClassElement,
@@ -46,7 +45,6 @@ class TargetClassAnalyzer(
         }
     }
 
-    @KotlinPoetMetadataPreview
     private fun extractKotlinFunElements(targetClassElement: TypeElement): List<KotlinFunElement> {
         val funSpecs = targetClassElement
             .toTypeSpec()
@@ -62,7 +60,10 @@ class TargetClassAnalyzer(
         }
     }
 
-    private fun checkFunctionDetails(kotlinFunElements: List<KotlinFunElement>) {
+    private fun checkFunctionDetails(
+        targetClassElement: TypeElement,
+        kotlinFunElements: List<KotlinFunElement>
+    ) {
         if (!kotlinFunElements.map { it.kotlinFun }.all { it.returnType != UNIT }) {
             TODO("TargetClassCheckStep, error report")
         }

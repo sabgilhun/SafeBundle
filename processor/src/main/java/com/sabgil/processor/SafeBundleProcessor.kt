@@ -14,7 +14,6 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
-@KotlinPoetMetadataPreview
 @AutoService(Processor::class)
 class SafeBundleProcessor : AbstractProcessor() {
 

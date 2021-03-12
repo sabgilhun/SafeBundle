@@ -5,7 +5,6 @@ import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.InheritanceType
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
 import com.sabgil.processor.common.types.*
-import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
@@ -19,7 +18,6 @@ class AnnotatedClassAnalyzer(
     private val env: ProcessingEnvironment
 ) {
 
-    @KotlinPoetMetadataPreview
     fun analyze(annotatedElement: TypeElement): AnnotatedClassAnalyzeResult {
         val inheritanceType = checkInheritance(annotatedElement)
         val propertiesMap = checkProperties(annotatedElement)
@@ -39,7 +37,6 @@ class AnnotatedClassAnalyzer(
         }
     }
 
-    @KotlinPoetMetadataPreview
     private fun checkProperties(annotatedElement: TypeElement): Map<String, KotlinDelegateElement> {
         val bundleExtraHolderTypeMirror = env.erasure(
             env.parseToTypeElement(bundleValueHolderClassName).asType()

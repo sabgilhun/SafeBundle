@@ -74,8 +74,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
             }
             InheritanceType.FRAGMENT -> {
                 val jvmMethods = kotlinFunElements.map { it.jvmMethod }
-                val fragmentTypeMirror = env.parseToTypeElement(fragmentClassName).asType()
-                if (!jvmMethods.all { it.returnType == fragmentTypeMirror }) {
+                if (!jvmMethods.all { env.isAssignable(it.returnType, fragmentClassName)}) {
                     TODO("TargetClassCheckStep, error report")
                 }
             }

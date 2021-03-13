@@ -19,16 +19,26 @@ class ActivityTypeGenerator(
     private val generatingClassName =
         "${annotatedClassName.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
 
+    private val useForResultMap = targetClassAnalyzeResult.requestCodeMap
+    private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
+
     fun generate() = FileSpec.builder(packageName, generatingClassName)
         .addType(classBuild())
         .build()
 
     private fun classBuild(): TypeSpec =
         TypeSpec.classBuilder(generatingClassName)
-            .addContextPropConstructor()
+            .addConstructor()
             .addSuperinterface(targetClassName)
             .addOverrideFunctions()
             .build()
+
+    private fun TypeSpec.Builder.addConstructor() =
+        if (isIncludeForResult) {
+            addActivityPropConstructor()
+        } else {
+            addContextPropConstructor()
+        }
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
         val funSpecs = targetClassAnalyzeResult.targetClassFunElements.map {

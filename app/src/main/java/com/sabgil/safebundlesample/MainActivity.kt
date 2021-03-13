@@ -2,6 +2,8 @@ package com.sabgil.safebundlesample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.sabgil.annotation.ForResult
+import com.sabgil.annotation.RequestCode
 import com.sabgil.annotation.SafeBundle
 import com.sabgil.safebundle.BundleValueHolder
 
@@ -20,7 +22,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     interface Navigator {
-        fun start(param1: String, param2: Int)
+
+        @ForResult
+        fun start(@RequestCode requestCode: Int, param1: String, param2: Int)
     }
 }
 

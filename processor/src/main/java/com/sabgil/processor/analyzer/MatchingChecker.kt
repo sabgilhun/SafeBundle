@@ -11,21 +11,37 @@ class MatchingChecker(
 ) {
 
     private val targetClassFunElements = targetClassAnalyzeResult.targetClassFunElements
+
     private val propertiesMap = annotatedClassAnalyzeResult.propertiesMap
+
     private val propertyNames = propertiesMap.keys
-    private val numOfRequiredProperties = propertiesMap.values
-        .filter { !it.kotlinProperty.type.isNullable }.size
+
+    private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
+
+    private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
+
+    private val numOfRequiredProperties = propertiesMap.values.filter {
+        !it.kotlinProperty.type.isNullable
+    }.size
+
 
     fun check() {
         targetClassFunElements.forEach { func ->
             val usedPropertyNameSet = mutableSetOf<String>()
-            func.kotlinFun.parameters.forEach { kotlinParam ->
+
+            val params = if (isIncludeForResult) {
+                val requestCodeParam = requestCodeMap[func]
+                func.kotlinFun.parameters.filter { it != requestCodeParam }
+            } else {
+                func.kotlinFun.parameters
+            }
+
+            params.forEach { kotlinParam ->
                 checkNameIncludeInProperties(kotlinParam)
                 checkMatchingType(kotlinParam)
                 checkNullability(kotlinParam)
                 usedPropertyNameSet.add(kotlinParam.name)
             }
-
             checkRemainProperty(usedPropertyNameSet)
         }
     }

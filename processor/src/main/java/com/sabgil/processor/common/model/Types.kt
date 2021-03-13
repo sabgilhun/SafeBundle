@@ -1,5 +1,6 @@
 package com.sabgil.processor.common.model
 
+import com.sabgil.annotation.ForResult
 import com.sabgil.annotation.SafeBundle
 import com.sabgil.processor.common.ext.toClassName
 import com.squareup.kotlinpoet.ClassName
@@ -16,4 +17,8 @@ val parcelableClassName = ClassName("android.os", "Parcelable")
 
 val safeBundleAnnotationClassName = SafeBundle::class.java.toClassName()
 
+val forResultAnnotationClassName = ForResult::class.java.toClassName()
+
 val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")
+
+val intClassName = Int::class.java.toClassName()

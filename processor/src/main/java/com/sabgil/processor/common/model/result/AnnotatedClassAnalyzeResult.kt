@@ -1,5 +1,6 @@
-package com.sabgil.processor.common.model
+package com.sabgil.processor.common.model.result
 
+import com.sabgil.processor.common.model.InheritanceType
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
 import javax.lang.model.element.TypeElement
 

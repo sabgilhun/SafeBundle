@@ -6,6 +6,7 @@ import com.sabgil.processor.common.ext.name
 import com.sabgil.processor.common.ext.parseToTypeElement
 import com.sabgil.processor.common.model.*
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
+import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment

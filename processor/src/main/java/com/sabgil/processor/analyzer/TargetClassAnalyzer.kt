@@ -1,11 +1,9 @@
 package com.sabgil.processor.analyzer
 
 import com.sabgil.processor.common.ext.*
-import com.sabgil.processor.common.model.InheritanceType
-import com.sabgil.processor.common.model.TargetClassAnalyzeResult
+import com.sabgil.processor.common.model.*
 import com.sabgil.processor.common.model.element.KotlinFunElement
-import com.sabgil.processor.common.model.fragmentClassName
-import com.sabgil.processor.common.model.safeBundleAnnotationClassName
+import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
@@ -25,9 +23,14 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         val kotlinFunElements = extractKotlinFunElements(targetClassElement)
         checkFunctionDetails(annotatedClassInheritanceType, kotlinFunElements)
 
+        val useForResultMap = checkForResult(kotlinFunElements)
+        val isIncludeForResult = useForResultMap.isNotEmpty()
+
         return TargetClassAnalyzeResult(
             targetClassElement,
-            kotlinFunElements
+            kotlinFunElements,
+            useForResultMap,
+            isIncludeForResult
         )
     }
 
@@ -48,16 +51,16 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
     }
 
     private fun extractKotlinFunElements(targetClassElement: TypeElement): List<KotlinFunElement> {
-        val funSpecs = targetClassElement
+        val kotlinFunctions = targetClassElement
             .toTypeSpec()
             .funSpecs
             .filter { it.modifiers.contains(KModifier.ABSTRACT) }
 
-        val executableElements = targetClassElement.enclosedElements
+        val jvmMethods = targetClassElement.enclosedElements
             .filterIsInstance<ExecutableElement>()
 
-        return funSpecs.map { funSpec ->
-            val jvmMethod = requireNotNull(executableElements.find { it.name == funSpec.name })
+        return kotlinFunctions.map { funSpec ->
+            val jvmMethod = requireNotNull(jvmMethods.find { it.name == funSpec.name })
             KotlinFunElement(funSpec, jvmMethod)
         }
     }
@@ -74,10 +77,27 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
             }
             InheritanceType.FRAGMENT -> {
                 val jvmMethods = kotlinFunElements.map { it.jvmMethod }
-                if (!jvmMethods.all { env.isAssignable(it.returnType, fragmentClassName)}) {
+                if (!jvmMethods.all { env.isAssignable(it.returnType, fragmentClassName) }) {
                     TODO("TargetClassCheckStep, error report")
                 }
             }
         }
+    }
+
+    private fun checkForResult(kotlinFunElements: List<KotlinFunElement>): Map<KotlinFunElement, Boolean> {
+        val map = mutableMapOf<KotlinFunElement, Boolean>()
+        val annotationType = env.parseToTypeElement(forResultAnnotationClassName).asType()
+        kotlinFunElements.forEach { kotlinFunElement ->
+            val isForResultAnnotated = kotlinFunElement.jvmMethod.annotationMirrors.any {
+                it.annotationType == annotationType
+            }
+
+            if (isForResultAnnotated) {
+                val firstParam = kotlinFunElement.kotlinFun.parameters.first()
+                if (firstParam.name == "requestCode" && firstParam.type == intClassName)
+                    map[kotlinFunElement] = isForResultAnnotated
+            }
+        }
+        return map
     }
 }

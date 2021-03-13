@@ -1,8 +1,8 @@
 package com.sabgil.processor.generator
 
-import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
+import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.InheritanceType
-import com.sabgil.processor.common.model.TargetClassAnalyzeResult
+import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 
 class CodeGenerator(
     private val annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,

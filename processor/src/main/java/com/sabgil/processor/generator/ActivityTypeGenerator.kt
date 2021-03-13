@@ -2,8 +2,8 @@ package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
-import com.sabgil.processor.common.model.AnnotatedClassAnalyzeResult
-import com.sabgil.processor.common.model.TargetClassAnalyzeResult
+import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
+import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier

@@ -15,10 +15,10 @@ val serializableClassName = ClassName("java.io", "Serializable")
 
 val parcelableClassName = ClassName("android.os", "Parcelable")
 
-val safeBundleAnnotationClassName = SafeBundle::class.java.toClassName()
+val safeBundleAnnotationClassName = SafeBundle::class.toClassName()
 
-val forResultAnnotationClassName = ForResult::class.java.toClassName()
+val forResultAnnotationClassName = ForResult::class.toClassName()
 
 val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")
 
-val intClassName = Int::class.java.toClassName()
+val intClassName = Int::class.toClassName()

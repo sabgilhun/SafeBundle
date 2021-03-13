@@ -2,6 +2,7 @@ package com.sabgil.safebundlesample
 
 import androidx.fragment.app.Fragment
 import com.sabgil.annotation.SafeBundle
+import com.sabgil.safebundle.bundle
 
 @SafeBundle(MainFragment.Factory::class)
 class MainFragment : Fragment() {

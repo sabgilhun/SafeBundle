@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sabgil.annotation.ForResult
 import com.sabgil.annotation.RequestCode
 import com.sabgil.annotation.SafeBundle
-import com.sabgil.safebundle.BundleValueHolder
+import com.sabgil.safebundle.bundle
 
 @SafeBundle(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
@@ -26,9 +26,4 @@ class MainActivity : AppCompatActivity() {
         @ForResult
         fun start(@RequestCode requestCode: Int, param1: String, param2: Int)
     }
-}
-
-fun <T> bundle() = BundleValueHolder {
-    @Suppress("UNCHECKED_CAST")
-    Any() as T
 }

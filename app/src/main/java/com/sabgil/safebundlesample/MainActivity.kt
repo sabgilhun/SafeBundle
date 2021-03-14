@@ -1,29 +1,20 @@
 package com.sabgil.safebundlesample
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.sabgil.annotation.ForResult
-import com.sabgil.annotation.RequestCode
-import com.sabgil.annotation.SafeBundle
-import com.sabgil.safebundle.bundle
+import com.sabgil.safebundle.create
 
-@SafeBundle(MainActivity.Navigator::class)
 class MainActivity : AppCompatActivity() {
 
-    private val param1 by bundle<String>()
-
-    private val param2 by bundle<Int>()
-
-    val a: String? = null
+    private val navigator = create<MainActivity2.Navigator>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
 
-    interface Navigator {
-
-        @ForResult
-        fun start(@RequestCode requestCode: Int, param1: String, param2: Int)
+        findViewById<View>(R.id.button).setOnClickListener {
+            navigator.start("started from MainActivity1")
+        }
     }
 }

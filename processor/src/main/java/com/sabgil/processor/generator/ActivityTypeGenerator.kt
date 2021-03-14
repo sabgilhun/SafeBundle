@@ -12,20 +12,17 @@ class ActivityTypeGenerator(
     private val targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
     private val packageName = annotatedClassAnalyzeResult.annotatedClassElement.packageName()
-    private val annotatedClassName = annotatedClassAnalyzeResult.annotatedClassElement.toClassName()
     private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
-    private val generatingClassName =
-        "${annotatedClassName.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
-
+    private val generateClassName = "${targetClassName.simpleName.replace(".", "_")}_SafeBundleImpl"
     private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
     private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
 
-    fun generate() = FileSpec.builder(packageName, generatingClassName)
+    fun generate() = FileSpec.builder(packageName, generateClassName)
         .addType(classBuild())
         .build()
 
     private fun classBuild(): TypeSpec =
-        TypeSpec.classBuilder(generatingClassName)
+        TypeSpec.classBuilder(generateClassName)
             .addConstructor()
             .addSuperinterface(targetClassName)
             .addOverrideFunctions()

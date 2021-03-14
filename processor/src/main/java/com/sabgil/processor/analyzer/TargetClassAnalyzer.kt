@@ -26,6 +26,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
 
         val useForResultMap = checkForResult(kotlinFunElements)
         val isIncludeForResult = useForResultMap.isNotEmpty()
+        checkInterface(targetClassElement, annotatedClassInheritanceType, isIncludeForResult)
 
         return TargetClassAnalyzeResult(
             targetClassElement,
@@ -115,5 +116,28 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
             }
         }
         return map
+    }
+
+    private fun checkInterface(
+        targetClassElement: TypeElement,
+        annotatedClassInheritanceType: InheritanceType,
+        isIncludeForResult: Boolean
+    ) {
+        val targetType = targetClassElement.asType()
+        if (annotatedClassInheritanceType == InheritanceType.ACTIVITY) {
+            if (isIncludeForResult) {
+                if (!env.isAssignable(targetType, activityBasedCreatableClassName)) {
+                    TODO("TargetClassCheckStep, error report")
+                }
+            } else {
+                if (!env.isAssignable(targetType, contextBasedCreatableClassName)) {
+                    TODO("TargetClassCheckStep, error report")
+                }
+            }
+        } else {
+            if (!env.isAssignable(targetType, creatableClassName)) {
+                TODO("TargetClassCheckStep, error report")
+            }
+        }
     }
 }

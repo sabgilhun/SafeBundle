@@ -25,3 +25,9 @@ val requestCodeAnnotationClassName = RequestCode::class.toClassName()
 val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")
 
 val intClassName = Int::class.toClassName()
+
+val creatableClassName = ClassName("com.sabgil.safebundle", "Creatable")
+
+val contextBasedCreatableClassName = ClassName("com.sabgil.safebundle", "ContextBasedCreatable")
+
+val activityBasedCreatableClassName = ClassName("com.sabgil.safebundle", "ActivityBasedCreatable")

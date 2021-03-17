@@ -4,11 +4,13 @@ import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.*
 import com.sabgil.processor.common.model.element.KotlinFunElement
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
@@ -22,7 +24,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         checkTargetClassDetails(targetClassElement)
 
         val kotlinFunElements = extractKotlinFunElements(targetClassElement)
-        checkFunctionDetails(annotatedClassInheritanceType, kotlinFunElements)
+        checkFunctionDetails(targetClassElement, annotatedClassInheritanceType, kotlinFunElements)
 
         val useForResultMap = checkForResult(kotlinFunElements)
         val isIncludeForResult = useForResultMap.isNotEmpty()
@@ -48,7 +50,10 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
 
     private fun checkTargetClassDetails(targetClassElement: TypeElement) {
         if (!targetClassElement.isAbstract) {
-            TODO("TargetClassAnalyzer, error report")
+            env.error(
+                "Target class of SafeBundle must be abstract class",
+                targetClassElement
+            )
         }
     }
 
@@ -60,27 +65,36 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
 
         val jvmMethods = targetClassElement.enclosedElements
             .filterIsInstance<ExecutableElement>()
+            .filter { it.isAbstract && it.kind == ElementKind.METHOD }
 
-        return kotlinFunctions.map { funSpec ->
-            val jvmMethod = requireNotNull(jvmMethods.find { it.name == funSpec.name })
-            KotlinFunElement(funSpec, jvmMethod)
-        }
+        return kotlinFunctions.mapIndexed { i, f -> KotlinFunElement(f, jvmMethods[i]) }
     }
 
     private fun checkFunctionDetails(
+        targetClassElement: TypeElement,
         annotatedClassInheritanceType: InheritanceType,
         kotlinFunElements: List<KotlinFunElement>
     ) {
         when (annotatedClassInheritanceType) {
             InheritanceType.ACTIVITY -> {
-                if (!kotlinFunElements.map { it.kotlinFun }.all { it.returnType != UNIT }) {
-                    TODO("TargetClassAnalyzer, error report")
+                val kotlinFunctions = kotlinFunElements.map { it.kotlinFun }
+                if (!kotlinFunctions.all { it.returnType == UNIT || it.returnType == null }
+                ) {
+                    env.error(
+                        "Return type of the target class functions must be a Unit when annotated class inherits Activity",
+                        targetClassElement
+                    )
                 }
             }
             InheritanceType.FRAGMENT -> {
+                val k = kotlinFunElements.map { it.kotlinFun }
+                k.any { !env.isAssignable(ClassName.bestGuess(it.returnType.toString()), fragmentClassName)}
                 val jvmMethods = kotlinFunElements.map { it.jvmMethod }
-                if (!jvmMethods.all { env.isAssignable(it.returnType, fragmentClassName) }) {
-                    TODO("TargetClassAnalyzer, error report")
+                if (jvmMethods.any { !env.isAssignable(it.returnType, fragmentClassName) }) {
+                    env.error(
+                        "Return type of the target class functions must be a Fragment when annotated class inherits Fragment",
+                        targetClassElement
+                    )
                 }
             }
         }
@@ -100,18 +114,18 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
             if (isForResultAnnotated) {
                 val requestCode = env.parseToTypeElement(requestCodeAnnotationClassName).asType()
 
-                val jvmParam = kotlinFunElement.jvmMethod.parameters.first { param ->
+                val jvmParam = kotlinFunElement.jvmMethod.parameters.firstOrNull { param ->
                     param.annotationMirrors.any { it.annotationType == requestCode }
-                }
+                } ?: env.error("Missing request code parameter", kotlinFunElement.jvmMethod)
 
-                val kotlinParam = kotlinFunElement.kotlinFun.parameters.first {
+                val kotlinParam = kotlinFunElement.kotlinFun.parameters.firstOrNull {
                     it.name == jvmParam.name
-                }
+                } ?: env.error("Missing request code parameter2", kotlinFunElement.jvmMethod)
 
                 if (kotlinParam.type == intClassName) {
                     map[kotlinFunElement] = kotlinParam
                 } else {
-                    TODO("TargetClassCheckStep, error report")
+                    env.error("RequestCode parameter must be Int", jvmParam)
                 }
             }
         }
@@ -127,16 +141,25 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         if (annotatedClassInheritanceType == InheritanceType.ACTIVITY) {
             if (isIncludeForResult) {
                 if (!env.isAssignable(targetType, activityBasedCreatableClassName)) {
-                    TODO("TargetClassCheckStep, error report")
+                    env.error(
+                        "Target class must implements ActivityBasedCreatable if annotated class inherits Activity and use @ForResult",
+                        targetClassElement
+                    )
                 }
             } else {
                 if (!env.isAssignable(targetType, contextBasedCreatableClassName)) {
-                    TODO("TargetClassCheckStep, error report")
+                    env.error(
+                        "Target class must implements ContextBasedCreatable if annotated class inherits Activity",
+                        targetClassElement
+                    )
                 }
             }
         } else {
             if (!env.isAssignable(targetType, creatableClassName)) {
-                TODO("TargetClassCheckStep, error report")
+                env.error(
+                    "Target class must implements Creatable",
+                    targetClassElement
+                )
             }
         }
     }

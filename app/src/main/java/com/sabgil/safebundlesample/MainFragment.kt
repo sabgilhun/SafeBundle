@@ -12,6 +12,6 @@ class MainFragment : Fragment() {
     private val param2 by bundle<Int>()
 
     interface Factory : Creatable {
-        fun start(param1: String?, param2: Int): MainFragment
+        fun start(param1: String?, param2: Int): Fragment
     }
 }

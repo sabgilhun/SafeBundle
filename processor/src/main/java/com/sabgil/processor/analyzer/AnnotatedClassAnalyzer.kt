@@ -1,9 +1,6 @@
 package com.sabgil.processor.analyzer
 
-import com.sabgil.processor.common.ext.erasure
-import com.sabgil.processor.common.ext.isAssignable
-import com.sabgil.processor.common.ext.name
-import com.sabgil.processor.common.ext.parseToTypeElement
+import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.*
 import com.sabgil.processor.common.model.element.KotlinDelegateElement
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
@@ -33,7 +30,10 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
                 InheritanceType.ACTIVITY
             env.isAssignable(elementTypeMirror, fragmentClassName) ->
                 InheritanceType.FRAGMENT
-            else -> TODO("checkAssignable, error report")
+            else -> env.error(
+                "SafeBundle annotated class must assignable to activity or fragment",
+                annotatedElement
+            )
         }
     }
 
@@ -61,7 +61,10 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
             val getter = getters.first { it.name == toGetterName(rawFieldName) }
 
             if (!env.isSerializableOrParcelable(getter.returnType)) {
-                TODO("ArgumentsCheckStep, error report")
+                env.error(
+                    "Bundle properties must be Serializable or Parcelable",
+                    getter
+                )
             }
 
             propertiesMap[rawFieldName] = KotlinDelegateElement(property, field, getter)

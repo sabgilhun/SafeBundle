@@ -37,7 +37,7 @@ class SafeBundleProcessor : AbstractProcessor() {
                     val targetClassResult =
                         targetClassAnalyzer.analyze(it, annotatedClassResult.inheritanceType)
 
-                    MatchingChecker(annotatedClassResult, targetClassResult).check()
+                    MatchingChecker(annotatedClassResult, targetClassResult, processingEnv).check()
                     annotatedClassResult to targetClassResult
                 }
 

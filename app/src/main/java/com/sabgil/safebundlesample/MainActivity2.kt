@@ -3,8 +3,10 @@ package com.sabgil.safebundlesample
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.sabgil.annotation.ForResult
+import com.sabgil.annotation.RequestCode
 import com.sabgil.annotation.SafeBundle
-import com.sabgil.safebundle.ContextBasedCreatable
+import com.sabgil.safebundle.ActivityBasedCreatable
 import com.sabgil.safebundle.bundle
 
 @SafeBundle(MainActivity2.Navigator::class)
@@ -14,11 +16,14 @@ class MainActivity2 : AppCompatActivity() {
 
     private val param2 by bundle<String?>()
 
-    interface Navigator : ContextBasedCreatable {
+    abstract class Navigator : ActivityBasedCreatable {
 
-        fun start(param1: String)
+        abstract fun start(param1: String)
 
-        fun start(param1: String, param2: String)
+        @ForResult
+        abstract fun start(@RequestCode a: Any, param1: String, param2: String)
+
+        abstract fun start(param2: Int)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

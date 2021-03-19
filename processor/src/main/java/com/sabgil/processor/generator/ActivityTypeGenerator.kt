@@ -1,22 +1,19 @@
 package com.sabgil.processor.generator
 
-import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
 
 class ActivityTypeGenerator(
     annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
-    private val targetClassAnalyzeResult: TargetClassAnalyzeResult
+    targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
     private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
-    private val packageName = annotatedClassAnalyzeResult.annotatedClass.packageName
     private val targetClass = targetClassAnalyzeResult.targetClass
-    private val targetClassName = targetClass.element.toClassName()
-    private val generateClassName = "${targetClassName.simpleName.replace(".", "_")}_SafeBundleImpl"
+    private val generateClassName = makeGeneratedClassName(targetClass.element)
     private val isIncludeForResult = targetClassAnalyzeResult.functions.any { it.isForResult }
 
-    fun generate() = FileSpec.builder(packageName, generateClassName)
+    fun generate() = FileSpec.builder(annotatedClass.packageName, generateClassName)
         .addType(classBuild())
         .build()
 
@@ -28,14 +25,14 @@ class ActivityTypeGenerator(
             .build()
 
     private fun TypeSpec.Builder.addConstructor() =
-        if (targetClassAnalyzeResult.functions.any { it.isForResult }) {
+        if (isIncludeForResult) {
             addActivityPropConstructor()
         } else {
             addContextPropConstructor()
         }
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
-        val funSpecs = targetClassAnalyzeResult.targetClass.toBoOverridingFunSpecs.map {
+        val funSpecs = targetClass.toBoOverridingFunSpecs.map {
             FunSpec.builder(it.name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it)

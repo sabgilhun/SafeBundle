@@ -1,18 +1,17 @@
 package com.sabgil.processor.generator
 
-import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
 
 class FragmentTypeGenerator(
     annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
-    private val targetClassAnalyzeResult: TargetClassAnalyzeResult
+    targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
     private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
-    private val targetClassName = targetClassAnalyzeResult.targetClass.element.toClassName()
-    private val generatingClassName =
-        "${annotatedClass.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
+    private val targetClass = targetClassAnalyzeResult.targetClass
+
+    private val generatingClassName = makeGeneratedClassName(targetClass.element)
 
     fun generate() = FileSpec.builder(annotatedClass.packageName, generatingClassName)
         .addType(classBuild())
@@ -20,12 +19,12 @@ class FragmentTypeGenerator(
 
     private fun classBuild(): TypeSpec =
         TypeSpec.classBuilder(generatingClassName)
-            .addSuperinterface(targetClassName)
+            .addSuperinterface(targetClass.className)
             .addOverrideFunctions()
             .build()
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
-        val funSpecs = targetClassAnalyzeResult.targetClass.toBoOverridingFunSpecs.map {
+        val funSpecs = targetClass.toBoOverridingFunSpecs.map {
             FunSpec.builder(it.name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it)

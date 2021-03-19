@@ -24,8 +24,6 @@ val nullableAnnotationClassName = Nullable::class.toClassName()
 
 val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")
 
-val intClassName = Int::class.toClassName()
-
 val creatableClassName = ClassName("com.sabgil.safebundle", "Creatable")
 
 val contextBasedCreatableClassName = ClassName("com.sabgil.safebundle", "ContextBasedCreatable")

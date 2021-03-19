@@ -13,8 +13,4 @@ data class Parameter(
     val name = variableElement.simpleName.toString()
 
     val type: TypeMirror = variableElement.asType()
-
-    val modifiers: Set<Modifier> = variableElement.modifiers
-
-    val typeName = variableElement.toTypeName(isNullable)
 }

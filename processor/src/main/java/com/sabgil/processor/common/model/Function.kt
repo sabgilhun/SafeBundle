@@ -5,10 +5,10 @@ import javax.lang.model.type.TypeMirror
 
 data class Function(
     val isForResult: Boolean,
-    val jvmMethod: ExecutableElement,
+    val element: ExecutableElement,
     val parameters: List<Parameter>
 ) {
-    val returnType: TypeMirror = jvmMethod.returnType
+    val returnType: TypeMirror = element.returnType
 
-    val name = jvmMethod.simpleName.toString()
+    val name = element.simpleName.toString()
 }

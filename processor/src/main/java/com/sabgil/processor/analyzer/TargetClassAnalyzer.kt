@@ -63,7 +63,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         .map { func ->
             Function(
                 isForResult = checkForResultAnnotation(func),
-                jvmMethod = func,
+                element = func,
                 parameters = func.parameters.map { it.toParameter() }
             )
         }

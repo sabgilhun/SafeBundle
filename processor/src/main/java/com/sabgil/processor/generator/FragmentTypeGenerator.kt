@@ -5,7 +5,6 @@ import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
 class FragmentTypeGenerator(
@@ -29,12 +28,14 @@ class FragmentTypeGenerator(
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
         val funSpecs = targetClassAnalyzeResult.targetClassFunElements.map {
-            FunSpec.builder(it.kotlinFun.name)
-                .addModifiers(KModifier.OVERRIDE)
-                .addParameters(it.kotlinFun.parameters)
-                .addCodeBlock(it.kotlinFun)
-                .returns(annotatedClass.className)
-                .build()
+            FunSpec.builder("").build()
+            // TODO: after modify param
+//            FunSpec.builder(it.kotlinFun.name)
+//                .addModifiers(KModifier.OVERRIDE)
+//                .addParameters(it.kotlinFun.parameters)
+//                .addCodeBlock(it.kotlinFun)
+//                .returns(annotatedClass.className)
+//                .build()
         }
         addFunctions(funSpecs)
         return this

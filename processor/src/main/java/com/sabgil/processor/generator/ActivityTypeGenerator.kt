@@ -1,7 +1,7 @@
 package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.toClassName
-import com.sabgil.processor.common.model.element.KotlinFunElement
+import com.sabgil.processor.common.model.Function
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
@@ -37,23 +37,25 @@ class ActivityTypeGenerator(
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
         val funSpecs = targetClassAnalyzeResult.targetClassFunElements.map {
-            FunSpec.builder(it.kotlinFun.name)
-                .addModifiers(KModifier.OVERRIDE)
-                .addParameters(it.kotlinFun.parameters)
-                .addCodeBlock(it)
-                .build()
+            FunSpec.builder("").build()
+            // TODO: after modify param
+//            FunSpec.builder(it.kotlinFun.name)
+//                .addModifiers(KModifier.OVERRIDE)
+//                .addParameters(it.kotlinFun.parameters)
+//                .addCodeBlock(it)
+//                .build()
         }
         addFunctions(funSpecs)
         return this
     }
 
-    private fun FunSpec.Builder.addCodeBlock(kotlinFunElement: KotlinFunElement): FunSpec.Builder {
+    private fun FunSpec.Builder.addCodeBlock(function: Function): FunSpec.Builder {
         if (isIncludeForResult) {
             addStatement(
                 "val i = android.content.Intent(activity, %T::class.java)",
                 annotatedClass.elementType
             )
-            kotlinFunElement.excludeRequestCodeParam().forEach {
+            function.excludeRequestCodeParam().forEach {
                 addStatement("i.putExtra(%S, %L)", it.name, it.name)
             }
             addStatement("activity.startActivityForResult(i, requestCode)")
@@ -62,20 +64,23 @@ class ActivityTypeGenerator(
                 "val i = android.content.Intent(context, %T::class.java)",
                 annotatedClass.elementType
             )
-            kotlinFunElement.kotlinFun.parameters.forEach {
-                addStatement("i.putExtra(%S, %L)", it.name, it.name)
-            }
+            // TODO: after modify param
+//            function.kotlinFun.parameters.forEach {
+//                addStatement("i.putExtra(%S, %L)", it.name, it.name)
+//            }
             addStatement("context.startActivity(i)")
         }
         return this
     }
 
-    private fun KotlinFunElement.excludeRequestCodeParam(): List<ParameterSpec> {
+    private fun Function.excludeRequestCodeParam(): List<ParameterSpec> {
         val requestCodeParam = requestCodeMap[this]
-        return if (requestCodeParam != null) {
-            kotlinFun.parameters.filter { it != requestCodeParam }
-        } else {
-            kotlinFun.parameters
-        }
+        return emptyList()
+        // TODO: after modify param
+//        return if (requestCodeParam != null) {
+//            kotlinFun.parameters.filter { it != requestCodeParam }
+//        } else {
+//            kotlinFun.parameters
+//        }
     }
 }

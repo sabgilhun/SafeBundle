@@ -2,19 +2,18 @@ package com.sabgil.processor.analyzer
 
 import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.*
-import com.sabgil.processor.common.model.element.KotlinFunElement
+import com.sabgil.processor.common.model.Function
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.UNIT
-import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeKind
 
 class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
+
+    private val annotationType = env.parseToTypeElement(forResultAnnotationClassName).asType()
 
     fun analyze(
         annotatedElement: TypeElement,
@@ -57,28 +56,23 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         }
     }
 
-    private fun extractKotlinFunElements(targetClassElement: TypeElement): List<KotlinFunElement> {
-        val kotlinFunctions = targetClassElement
-            .toTypeSpec()
-            .funSpecs
-            .filter { it.modifiers.contains(KModifier.ABSTRACT) }
-
-        val jvmMethods = targetClassElement.enclosedElements
-            .filterIsInstance<ExecutableElement>()
-            .filter { it.isAbstract && it.kind == ElementKind.METHOD }
-
-        return kotlinFunctions.mapIndexed { i, f -> KotlinFunElement(f, jvmMethods[i]) }
-    }
+    private fun extractKotlinFunElements(
+        targetClassElement: TypeElement
+    ): List<Function> = targetClassElement.enclosedElements
+        .filterIsInstance<ExecutableElement>()
+        .filter { it.isAbstract && it.kind == ElementKind.METHOD }
+        .map {
+            Function(checkForResultAnnotation(it), it)
+        }
 
     private fun checkFunctionDetails(
         targetClassElement: TypeElement,
-        annotatedClassInheritanceType: InheritanceType,
-        kotlinFunElements: List<KotlinFunElement>
+        inheritanceType: InheritanceType,
+        functions: List<Function>
     ) {
-        when (annotatedClassInheritanceType) {
+        when (inheritanceType) {
             InheritanceType.ACTIVITY -> {
-                val kotlinFunctions = kotlinFunElements.map { it.kotlinFun }
-                if (!kotlinFunctions.all { it.returnType == UNIT || it.returnType == null }
+                if (functions.any { it.returnType.kind != TypeKind.VOID }
                 ) {
                     env.error(
                         "Return type of the target class functions must be a Unit when annotated class inherits Activity",
@@ -87,10 +81,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
                 }
             }
             InheritanceType.FRAGMENT -> {
-                val k = kotlinFunElements.map { it.kotlinFun }
-                k.any { !env.isAssignable(ClassName.bestGuess(it.returnType.toString()), fragmentClassName)}
-                val jvmMethods = kotlinFunElements.map { it.jvmMethod }
-                if (jvmMethods.any { !env.isAssignable(it.returnType, fragmentClassName) }) {
+                if (functions.any { !env.isAssignable(it.returnType, fragmentClassName) }) {
                     env.error(
                         "Return type of the target class functions must be a Fragment when annotated class inherits Fragment",
                         targetClassElement
@@ -101,36 +92,40 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
     }
 
     private fun checkForResult(
-        kotlinFunElements: List<KotlinFunElement>
-    ): Map<KotlinFunElement, ParameterSpec> {
-        val map = mutableMapOf<KotlinFunElement, ParameterSpec>()
+        functions: List<Function>
+    ): Map<Function, ParameterSpec> {
+        val map = mutableMapOf<Function, ParameterSpec>()
         val annotationType = env.parseToTypeElement(forResultAnnotationClassName).asType()
 
-        kotlinFunElements.forEach { kotlinFunElement ->
-            val isForResultAnnotated = kotlinFunElement.jvmMethod.annotationMirrors.any {
+        functions.forEach { function ->
+            val isForResultAnnotated = function.annotations.any {
                 it.annotationType == annotationType
             }
 
             if (isForResultAnnotated) {
-                val requestCode = env.parseToTypeElement(requestCodeAnnotationClassName).asType()
+                val requestCodeAnnotationType =
+                    env.parseToTypeElement(requestCodeAnnotationClassName).asType()
 
-                val jvmParam = kotlinFunElement.jvmMethod.parameters.firstOrNull { param ->
-                    param.annotationMirrors.any { it.annotationType == requestCode }
-                } ?: env.error("Missing request code parameter", kotlinFunElement.jvmMethod)
-
-                val kotlinParam = kotlinFunElement.kotlinFun.parameters.firstOrNull {
-                    it.name == jvmParam.name
-                } ?: env.error("Missing request code parameter2", kotlinFunElement.jvmMethod)
-
-                if (kotlinParam.type == intClassName) {
-                    map[kotlinFunElement] = kotlinParam
-                } else {
-                    env.error("RequestCode parameter must be Int", jvmParam)
-                }
+                // TODO : param
+//                val jvmParam = function.jvmMethod.parameters.firstOrNull { param ->
+//                    param.annotationMirrors.any { it.annotationType == requestCodeAnnotationType }
+//
+//                } ?: env.error("Missing request code parameter", function.jvmMethod)
+//
+//                val kotlinParam = function.kotlinFun.parameters.firstOrNull {
+//                    it.name == jvmParam.name
+//                } ?: env.error("Missing request code parameter2", function.jvmMethod)
+//
+//                if (kotlinParam.type == intClassName) {
+//                    map[function] = kotlinParam
+//                } else {
+//                    env.error("RequestCode parameter must be Int", jvmParam)
+//                }
             }
         }
         return map
     }
+
 
     private fun checkInterface(
         targetClassElement: TypeElement,
@@ -163,4 +158,8 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
             }
         }
     }
+
+    private fun checkForResultAnnotation(
+        executableElement: ExecutableElement
+    ) = executableElement.annotationMirrors.any { it.annotationType == annotationType }
 }

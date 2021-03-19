@@ -31,11 +31,14 @@ class MatchingChecker(
         targetClassFunElements.forEach { func ->
             val usedPropertyNameSet = mutableSetOf<String>()
 
+            // TODO : modify param
             val params = if (isIncludeForResult) {
                 val requestCodeParam = requestCodeMap[func]
-                func.kotlinFun.parameters.filter { it != requestCodeParam }
+                listOf<ParameterSpec>()
+//                func.kotlinFun.parameters.filter { it != requestCodeParam }
             } else {
-                func.kotlinFun.parameters
+//                func.kotlinFun.parameters
+                listOf<ParameterSpec>()
             }
 
             params.forEach { kotlinParam ->

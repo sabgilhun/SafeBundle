@@ -23,14 +23,16 @@ class MatchingChecker(
 
     private val propertyNames = properties.keys
 
-    private val functions = targetClassAnalyzeResult.functions
-
     fun check() {
         targetClassFunElements.forEach { func ->
             val usedPropertyNameSet = mutableSetOf<String>()
 
-            val parameters = if (functions.any { it.isForResult }) {
-                func.parameters.filter { !it.isRequestCodeParam }
+            val parameters = if (func.isForResult) {
+                val filtered = func.parameters.filter { !it.isRequestCodeParam }
+                if(filtered.size == func.parameters.size) {
+                    env.error("Require 'requestCode' parameter if use @ForResult", func.jvmMethod)
+                }
+                filtered
             } else {
                 func.parameters
             }

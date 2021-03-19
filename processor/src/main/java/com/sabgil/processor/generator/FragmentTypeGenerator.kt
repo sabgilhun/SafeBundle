@@ -1,7 +1,6 @@
 package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.toClassName
-import com.sabgil.processor.common.model.Function
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
@@ -11,7 +10,7 @@ class FragmentTypeGenerator(
     private val targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
     private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
-    private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
+    private val targetClassName = targetClassAnalyzeResult.targetClass.element.toClassName()
     private val generatingClassName =
         "${annotatedClass.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
 
@@ -26,7 +25,7 @@ class FragmentTypeGenerator(
             .build()
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
-        val funSpecs = targetClassAnalyzeResult.functions.map {
+        val funSpecs = targetClassAnalyzeResult.targetClass.toBoOverridingFunSpecs.map {
             FunSpec.builder(it.name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it)
@@ -38,23 +37,23 @@ class FragmentTypeGenerator(
         return this
     }
 
-    private fun FunSpec.Builder.addParameters(function: Function): FunSpec.Builder {
-        function.parameters.forEach {
-            val parameterSpec = ParameterSpec.builder(it.name, it.typeName)
-                .jvmModifiers(it.modifiers)
+    private fun FunSpec.Builder.addParameters(funSpecs: FunSpec): FunSpec.Builder {
+        funSpecs.parameters.forEach {
+            val parameterSpec = ParameterSpec.builder(it.name, it.type)
+                .addModifiers(it.modifiers)
                 .build()
             addParameter(parameterSpec)
         }
         return this
     }
 
-    private fun FunSpec.Builder.addCodeBlock(function: Function): FunSpec.Builder {
+    private fun FunSpec.Builder.addCodeBlock(funSpecs: FunSpec): FunSpec.Builder {
         addStatement(
             "val f = %T()",
             annotatedClass.elementType
         )
         addStatement("val b = androidx.core.os.bundleOf(")
-        function.parameters.map {
+        funSpecs.parameters.map {
             addStatement("%S to %L,", it.name, it.name)
         }
         addStatement(")")

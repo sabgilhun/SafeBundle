@@ -16,9 +16,6 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
     private val forResultAnnotationType =
         env.parseToTypeElement(forResultAnnotationClassName).asType()
 
-    private val requestCodeAnnotationType =
-        env.parseToTypeElement(requestCodeAnnotationClassName).asType()
-
     private val nullableAnnotationType =
         env.parseToTypeElement(nullableAnnotationClassName).asType()
 
@@ -29,12 +26,12 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         val targetClassElement = findTargetClassElement(annotatedElement)
         checkTargetClassDetails(targetClassElement)
 
-        val functions = extractKotlinFunElements(targetClassElement)
+        val functions = createFunctions(targetClassElement)
         checkFunctionDetails(targetClassElement, annotatedClassInheritanceType, functions)
         checkInterface(targetClassElement, annotatedClassInheritanceType, functions)
 
         return TargetClassAnalyzeResult(
-            targetClassElement,
+            TargetClass(targetClassElement),
             functions
         )
     }
@@ -58,7 +55,7 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
         }
     }
 
-    private fun extractKotlinFunElements(
+    private fun createFunctions(
         targetClassElement: TypeElement
     ): List<Function> = targetClassElement.enclosedElements
         .filterIsInstance<ExecutableElement>()
@@ -146,14 +143,11 @@ class TargetClassAnalyzer(private val env: ProcessingEnvironment) {
     ) = variableElement.annotationMirrors.any { it.annotationType == nullableAnnotationType }
 
     private fun checkRequestCodeParam(variableElement: VariableElement): Boolean {
-        val isAnnotated = variableElement.annotationMirrors.any {
-            it.annotationType == requestCodeAnnotationType
-        }
-
+        val isAnnotated = variableElement.name == "requestCode"
+        println(variableElement.name + ": " + (variableElement.name == "requestCode"))
         if (isAnnotated && variableElement.asType().kind != TypeKind.INT) {
             env.error("RequestCode parameter must be Int", variableElement)
         }
-
         return isAnnotated
     }
 }

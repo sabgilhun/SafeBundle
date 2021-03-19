@@ -1,7 +1,6 @@
 package com.sabgil.processor.common.model
 
 import com.sabgil.annotation.ForResult
-import com.sabgil.annotation.RequestCode
 import com.sabgil.annotation.SafeBundle
 import com.sabgil.processor.common.ext.toClassName
 import com.squareup.kotlinpoet.ClassName
@@ -20,8 +19,6 @@ val parcelableClassName = ClassName("android.os", "Parcelable")
 val safeBundleAnnotationClassName = SafeBundle::class.toClassName()
 
 val forResultAnnotationClassName = ForResult::class.toClassName()
-
-val requestCodeAnnotationClassName = RequestCode::class.toClassName()
 
 val nullableAnnotationClassName = Nullable::class.toClassName()
 

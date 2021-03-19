@@ -1,7 +1,6 @@
 package com.sabgil.processor.generator
 
 import com.sabgil.processor.common.ext.toClassName
-import com.sabgil.processor.common.model.Function
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
@@ -12,7 +11,8 @@ class ActivityTypeGenerator(
 ) {
     private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
     private val packageName = annotatedClassAnalyzeResult.annotatedClass.packageName
-    private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
+    private val targetClass = targetClassAnalyzeResult.targetClass
+    private val targetClassName = targetClass.element.toClassName()
     private val generateClassName = "${targetClassName.simpleName.replace(".", "_")}_SafeBundleImpl"
     private val isIncludeForResult = targetClassAnalyzeResult.functions.any { it.isForResult }
 
@@ -23,7 +23,7 @@ class ActivityTypeGenerator(
     private fun classBuild(): TypeSpec =
         TypeSpec.classBuilder(generateClassName)
             .addConstructor()
-            .addSuperinterface(targetClassName)
+            .addSuperinterface(targetClass.className)
             .addOverrideFunctions()
             .build()
 
@@ -35,7 +35,7 @@ class ActivityTypeGenerator(
         }
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
-        val funSpecs = targetClassAnalyzeResult.functions.map {
+        val funSpecs = targetClassAnalyzeResult.targetClass.toBoOverridingFunSpecs.map {
             FunSpec.builder(it.name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it)
@@ -46,20 +46,22 @@ class ActivityTypeGenerator(
         return this
     }
 
-    private fun FunSpec.Builder.addParameters(function: Function): FunSpec.Builder {
-        function.parameters.forEach {
-            val parameterSpec = ParameterSpec.builder(it.name, it.typeName)
-                .jvmModifiers(it.modifiers)
+    private fun FunSpec.Builder.addParameters(funSpecs: FunSpec): FunSpec.Builder {
+        funSpecs.parameters.forEach {
+            val parameterSpec = ParameterSpec.builder(it.name, it.type)
+                .addModifiers(it.modifiers)
                 .build()
             addParameter(parameterSpec)
         }
         return this
     }
 
-    private fun FunSpec.Builder.addCodeBlock(function: Function): FunSpec.Builder {
+    private fun FunSpec.Builder.addCodeBlock(funSpecs: FunSpec): FunSpec.Builder {
         val memberPropName = if (isIncludeForResult) "activity" else "context"
+        val isForResult = funSpecs.parameters.any { it.name == "requestCode" }
+
         addStatement(
-            if (function.isForResult) {
+            if (isForResult) {
                 "val i = android.content.Intent($memberPropName, %T::class.java)"
             } else {
                 "val i = android.content.Intent($memberPropName, %T::class.java)"
@@ -67,14 +69,14 @@ class ActivityTypeGenerator(
             annotatedClass.elementType
         )
 
-        function.parameters.forEach {
-            if (!it.isRequestCodeParam) {
+        funSpecs.parameters.forEach {
+            if (it.name != "requestCode") {
                 addStatement("i.putExtra(%S, %L)", it.name, it.name)
             }
         }
 
         addStatement(
-            if (function.isForResult) {
+            if (isForResult) {
                 "$memberPropName.startActivityForResult(i, requestCode)"
             } else {
                 "$memberPropName.startActivity(i)"

@@ -1,6 +1,5 @@
 package com.sabgil.processor.generator
 
-import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.element.KotlinFunElement
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
@@ -8,10 +7,11 @@ import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.*
 
 class ActivityTypeGenerator(
-    private val annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
+    annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
     private val targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
-    private val packageName = annotatedClassAnalyzeResult.annotatedClassElement.packageName()
+    private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
+    private val packageName = annotatedClassAnalyzeResult.annotatedClass.packageName
     private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
     private val generateClassName = "${targetClassName.simpleName.replace(".", "_")}_SafeBundleImpl"
     private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
@@ -51,7 +51,7 @@ class ActivityTypeGenerator(
         if (isIncludeForResult) {
             addStatement(
                 "val i = android.content.Intent(activity, %T::class.java)",
-                annotatedClassAnalyzeResult.annotatedClassElement.asType()
+                annotatedClass.elementType
             )
             kotlinFunElement.excludeRequestCodeParam().forEach {
                 addStatement("i.putExtra(%S, %L)", it.name, it.name)
@@ -60,7 +60,7 @@ class ActivityTypeGenerator(
         } else {
             addStatement(
                 "val i = android.content.Intent(context, %T::class.java)",
-                annotatedClassAnalyzeResult.annotatedClassElement.asType()
+                annotatedClass.elementType
             )
             kotlinFunElement.kotlinFun.parameters.forEach {
                 addStatement("i.putExtra(%S, %L)", it.name, it.name)

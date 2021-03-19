@@ -10,7 +10,7 @@ class CodeGenerator(
 ) {
 
     fun generate() =
-        when (annotatedClassAnalyzeResult.inheritanceType) {
+        when (annotatedClassAnalyzeResult.annotatedClass.inheritanceType) {
             InheritanceType.ACTIVITY -> ActivityTypeGenerator(
                 annotatedClassAnalyzeResult,
                 targetClassAnalyzeResult

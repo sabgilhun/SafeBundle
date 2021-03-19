@@ -13,7 +13,7 @@ class MatchingChecker(
     private val env: ProcessingEnvironment
 ) {
 
-    private val annotatedClassElement = annotatedClassAnalyzeResult.annotatedClassElement
+    private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
 
     private val targetClassElement = targetClassAnalyzeResult.targetClassElement
 
@@ -44,7 +44,7 @@ class MatchingChecker(
             }
 
             params.forEach { kotlinParam ->
-                checkNameIncludeInProperties(kotlinParam)
+                checkNameIncludeInProperties(kotlinParam) //
                 checkMatchingType(kotlinParam)
                 checkNullability(kotlinParam)
                 usedPropertyNameSet.add(kotlinParam.name)
@@ -57,7 +57,7 @@ class MatchingChecker(
         if (!propertyNames.contains(parameterSpec.name)) {
             env.error(
                 "Property names of SafeBundle annotated class must equals to function parameter names of target class",
-                annotatedClassElement
+                annotatedClass.element
             )
         }
     }
@@ -77,7 +77,7 @@ class MatchingChecker(
         if (parameterSpec.type.isNullable && !property.kotlinProperty.type.isNullable) {
             env.error(
                 "Check nullability of properties and parameter",
-                annotatedClassElement
+                annotatedClass.element
             )
         }
     }
@@ -86,7 +86,7 @@ class MatchingChecker(
         if (usedPropertyNameSet.size < numOfRequiredProperties) {
             env.error(
                 "Check number of property and parameter",
-                annotatedClassElement
+                annotatedClass.element
             )
         }
     }

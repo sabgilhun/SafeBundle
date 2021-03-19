@@ -32,12 +32,15 @@ class SafeBundleProcessor : AbstractProcessor() {
             val results = annotatedElement
                 .filterIsInstance<TypeElement>()
                 .map {
-                    val annotatedClassResult =
-                        annotatedClassAnalyzer.analyze(it)
-                    val targetClassResult =
-                        targetClassAnalyzer.analyze(it, annotatedClassResult.inheritanceType)
+                    val annotatedClassResult = annotatedClassAnalyzer.analyze(it)
+
+                    val targetClassResult = targetClassAnalyzer.analyze(
+                        it,
+                        annotatedClassResult.annotatedClass.inheritanceType
+                    )
 
                     MatchingChecker(annotatedClassResult, targetClassResult, processingEnv).check()
+
                     annotatedClassResult to targetClassResult
                 }
 

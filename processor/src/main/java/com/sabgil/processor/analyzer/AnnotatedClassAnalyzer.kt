@@ -17,9 +17,13 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
 
     fun analyze(annotatedElement: TypeElement): AnnotatedClassAnalyzeResult {
         val inheritanceType = checkInheritance(annotatedElement)
+
         val propertiesMap = checkProperties(annotatedElement)
 
-        return AnnotatedClassAnalyzeResult(annotatedElement, inheritanceType, propertiesMap)
+        return AnnotatedClassAnalyzeResult(
+            AnnotatedClass(annotatedElement, inheritanceType),
+            propertiesMap
+        )
     }
 
     private fun checkInheritance(annotatedElement: TypeElement): InheritanceType {

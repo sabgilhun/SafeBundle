@@ -1,6 +1,5 @@
 package com.sabgil.processor.generator
 
-import com.sabgil.processor.common.ext.packageName
 import com.sabgil.processor.common.ext.toClassName
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
@@ -10,16 +9,15 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
 class FragmentTypeGenerator(
-    private val annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
+    annotatedClassAnalyzeResult: AnnotatedClassAnalyzeResult,
     private val targetClassAnalyzeResult: TargetClassAnalyzeResult
 ) {
-    private val packageName = annotatedClassAnalyzeResult.annotatedClassElement.packageName()
-    private val annotatedClassName = annotatedClassAnalyzeResult.annotatedClassElement.toClassName()
+    private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
     private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
     private val generatingClassName =
-        "${annotatedClassName.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
+        "${annotatedClass.simpleName}_${targetClassName.simpleName.replace(".", "_")}_Impl"
 
-    fun generate() = FileSpec.builder(packageName, generatingClassName)
+    fun generate() = FileSpec.builder(annotatedClass.packageName, generatingClassName)
         .addType(classBuild())
         .build()
 
@@ -35,7 +33,7 @@ class FragmentTypeGenerator(
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameters(it.kotlinFun.parameters)
                 .addCodeBlock(it.kotlinFun)
-                .returns(annotatedClassName)
+                .returns(annotatedClass.className)
                 .build()
         }
         addFunctions(funSpecs)
@@ -45,7 +43,7 @@ class FragmentTypeGenerator(
     private fun FunSpec.Builder.addCodeBlock(funSpec: FunSpec): FunSpec.Builder {
         addStatement(
             "val f = %T()",
-            annotatedClassAnalyzeResult.annotatedClassElement.asType()
+            annotatedClass.elementType
         )
         addStatement("val b = androidx.core.os.bundleOf(")
         funSpec.parameters.map {

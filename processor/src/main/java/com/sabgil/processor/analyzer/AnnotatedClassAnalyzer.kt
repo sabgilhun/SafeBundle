@@ -2,7 +2,7 @@ package com.sabgil.processor.analyzer
 
 import com.sabgil.processor.common.ext.*
 import com.sabgil.processor.common.model.*
-import com.sabgil.processor.common.model.element.KotlinDelegateElement
+import com.sabgil.processor.common.model.Property
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
 import java.util.*
@@ -41,7 +41,7 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
         }
     }
 
-    private fun checkProperties(annotatedElement: TypeElement): Map<String, KotlinDelegateElement> {
+    private fun checkProperties(annotatedElement: TypeElement): Map<String, Property> {
         val bundleExtraHolderTypeMirror = env.erasure(
             env.parseToTypeElement(bundleValueHolderClassName).asType()
         )
@@ -58,7 +58,7 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
             .propertySpecs
             .filter { it.delegated }
 
-        val propertiesMap = mutableMapOf<String, KotlinDelegateElement>()
+        val propertiesMap = mutableMapOf<String, Property>()
         delegateFields.forEach { field ->
             val rawFieldName = toFieldName(field)
             val property = properties.first { it.name == rawFieldName }
@@ -71,7 +71,7 @@ class AnnotatedClassAnalyzer(private val env: ProcessingEnvironment) {
                 )
             }
 
-            propertiesMap[rawFieldName] = KotlinDelegateElement(property, field, getter)
+            propertiesMap[rawFieldName] = Property(property, field, getter)
         }
 
         return propertiesMap

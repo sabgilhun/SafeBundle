@@ -1,9 +1,9 @@
 package com.sabgil.processor.common.model.result
 
 import com.sabgil.processor.common.model.AnnotatedClass
-import com.sabgil.processor.common.model.element.KotlinDelegateElement
+import com.sabgil.processor.common.model.Property
 
 data class AnnotatedClassAnalyzeResult(
     val annotatedClass: AnnotatedClass,
-    val propertiesMap: Map<String, KotlinDelegateElement>
+    val properties: Map<String, Property>
 )

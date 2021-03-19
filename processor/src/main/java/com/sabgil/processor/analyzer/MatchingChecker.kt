@@ -19,18 +19,13 @@ class MatchingChecker(
 
     private val targetClassFunElements = targetClassAnalyzeResult.targetClassFunElements
 
-    private val propertiesMap = annotatedClassAnalyzeResult.propertiesMap
+    private val properties = annotatedClassAnalyzeResult.properties
 
-    private val propertyNames = propertiesMap.keys
+    private val propertyNames = properties.keys
 
     private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
 
     private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
-
-    private val numOfRequiredProperties = propertiesMap.values.filter {
-        !it.kotlinProperty.type.isNullable
-    }.size
-
 
     fun check() {
         targetClassFunElements.forEach { func ->
@@ -63,18 +58,19 @@ class MatchingChecker(
     }
 
     private fun checkMatchingType(parameterSpec: ParameterSpec) {
-        val property = requireNotNull(propertiesMap[parameterSpec.name])
-        if (parameterSpec.type.regardlessOfNull != property.kotlinProperty.type.regardlessOfNull) {
-            env.error(
-                "Property types of SafeBundle annotated class equals to function parameter types of target class",
-                targetClassElement
-            )
-        }
+        val property = requireNotNull(properties[parameterSpec.name])
+        // TODO : modify param
+//        if (parameterSpec.type.regardlessOfNull != property.type) {
+//            env.error(
+//                "Property types of SafeBundle annotated class equals to function parameter types of target class",
+//                targetClassElement
+//            )
+//        }
     }
 
     private fun checkNullability(parameterSpec: ParameterSpec) {
-        val property = requireNotNull(propertiesMap[parameterSpec.name])
-        if (parameterSpec.type.isNullable && !property.kotlinProperty.type.isNullable) {
+        val property = requireNotNull(properties[parameterSpec.name])
+        if (parameterSpec.type.isNullable && !property.isNullable) {
             env.error(
                 "Check nullability of properties and parameter",
                 annotatedClass.element
@@ -83,14 +79,12 @@ class MatchingChecker(
     }
 
     private fun checkRemainProperty(usedPropertyNameSet: Set<String>) {
-        if (usedPropertyNameSet.size < numOfRequiredProperties) {
+        val numOfRequiredProp = properties.values.count { !it.isNullable }
+        if (usedPropertyNameSet.size < numOfRequiredProp) {
             env.error(
                 "Check number of property and parameter",
                 annotatedClass.element
             )
         }
     }
-
-    private val TypeName.regardlessOfNull: String
-        get() = toString().removeSuffix("?")
 }

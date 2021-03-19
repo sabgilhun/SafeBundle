@@ -1,10 +1,12 @@
 package com.sabgil.processor.analyzer
 
 import com.sabgil.processor.common.ext.error
+import com.sabgil.processor.common.ext.isAssignable
+import com.sabgil.processor.common.ext.name
+import com.sabgil.processor.common.model.Parameter
 import com.sabgil.processor.common.model.result.AnnotatedClassAnalyzeResult
 import com.sabgil.processor.common.model.result.TargetClassAnalyzeResult
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 
 class MatchingChecker(
@@ -15,44 +17,36 @@ class MatchingChecker(
 
     private val annotatedClass = annotatedClassAnalyzeResult.annotatedClass
 
-    private val targetClassElement = targetClassAnalyzeResult.targetClassElement
-
-    private val targetClassFunElements = targetClassAnalyzeResult.targetClassFunElements
+    private val targetClassFunElements = targetClassAnalyzeResult.functions
 
     private val properties = annotatedClassAnalyzeResult.properties
 
     private val propertyNames = properties.keys
 
-    private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
-
-    private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
+    private val functions = targetClassAnalyzeResult.functions
 
     fun check() {
         targetClassFunElements.forEach { func ->
             val usedPropertyNameSet = mutableSetOf<String>()
 
-            // TODO : modify param
-            val params = if (isIncludeForResult) {
-                val requestCodeParam = requestCodeMap[func]
-                listOf<ParameterSpec>()
-//                func.kotlinFun.parameters.filter { it != requestCodeParam }
+            val parameters = if (functions.any { it.isForResult }) {
+                func.parameters.filter { !it.isRequestCodeParam }
             } else {
-//                func.kotlinFun.parameters
-                listOf<ParameterSpec>()
+                func.parameters
             }
 
-            params.forEach { kotlinParam ->
-                checkNameIncludeInProperties(kotlinParam) //
-                checkMatchingType(kotlinParam)
-                checkNullability(kotlinParam)
-                usedPropertyNameSet.add(kotlinParam.name)
+            parameters.forEach { parameter ->
+                checkNameIncludeInProperties(parameter) //
+                checkMatchingType(parameter)
+                checkNullability(parameter)
+                usedPropertyNameSet.add(parameter.name)
             }
             checkRemainProperty(usedPropertyNameSet)
         }
     }
 
-    private fun checkNameIncludeInProperties(parameterSpec: ParameterSpec) {
-        if (!propertyNames.contains(parameterSpec.name)) {
+    private fun checkNameIncludeInProperties(parameter: Parameter) {
+        if (!propertyNames.contains(parameter.variableElement.name)) {
             env.error(
                 "Property names of SafeBundle annotated class must equals to function parameter names of target class",
                 annotatedClass.element
@@ -60,20 +54,19 @@ class MatchingChecker(
         }
     }
 
-    private fun checkMatchingType(parameterSpec: ParameterSpec) {
-        val property = requireNotNull(properties[parameterSpec.name])
-        // TODO : modify param
-//        if (parameterSpec.type.regardlessOfNull != property.type) {
-//            env.error(
-//                "Property types of SafeBundle annotated class equals to function parameter types of target class",
-//                targetClassElement
-//            )
-//        }
+    private fun checkMatchingType(parameter: Parameter) {
+        val property = requireNotNull(properties[parameter.name])
+        if (!env.isAssignable(property.type, parameter.type)) {
+            env.error(
+                "Property types of SafeBundle annotated class equals to function parameter types of target class",
+                parameter.variableElement
+            )
+        }
     }
 
-    private fun checkNullability(parameterSpec: ParameterSpec) {
-        val property = requireNotNull(properties[parameterSpec.name])
-        if (parameterSpec.type.isNullable && !property.isNullable) {
+    private fun checkNullability(parameter: Parameter) {
+        val property = requireNotNull(properties[parameter.name])
+        if (parameter.isNullable && !property.isNullable) {
             env.error(
                 "Check nullability of properties and parameter",
                 annotatedClass.element

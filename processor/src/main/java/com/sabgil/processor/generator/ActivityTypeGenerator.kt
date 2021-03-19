@@ -14,8 +14,7 @@ class ActivityTypeGenerator(
     private val packageName = annotatedClassAnalyzeResult.annotatedClass.packageName
     private val targetClassName = targetClassAnalyzeResult.targetClassElement.toClassName()
     private val generateClassName = "${targetClassName.simpleName.replace(".", "_")}_SafeBundleImpl"
-    private val requestCodeMap = targetClassAnalyzeResult.requestCodeMap
-    private val isIncludeForResult = targetClassAnalyzeResult.isIncludeForResult
+    private val isIncludeForResult = targetClassAnalyzeResult.functions.any { it.isForResult }
 
     fun generate() = FileSpec.builder(packageName, generateClassName)
         .addType(classBuild())
@@ -29,58 +28,59 @@ class ActivityTypeGenerator(
             .build()
 
     private fun TypeSpec.Builder.addConstructor() =
-        if (isIncludeForResult) {
+        if (targetClassAnalyzeResult.functions.any { it.isForResult }) {
             addActivityPropConstructor()
         } else {
             addContextPropConstructor()
         }
 
     private fun TypeSpec.Builder.addOverrideFunctions(): TypeSpec.Builder {
-        val funSpecs = targetClassAnalyzeResult.targetClassFunElements.map {
-            FunSpec.builder("").build()
-            // TODO: after modify param
-//            FunSpec.builder(it.kotlinFun.name)
-//                .addModifiers(KModifier.OVERRIDE)
-//                .addParameters(it.kotlinFun.parameters)
-//                .addCodeBlock(it)
-//                .build()
+        val funSpecs = targetClassAnalyzeResult.functions.map {
+            FunSpec.builder(it.name)
+                .addModifiers(KModifier.OVERRIDE)
+                .addParameters(it)
+                .addCodeBlock(it)
+                .build()
         }
         addFunctions(funSpecs)
         return this
     }
 
-    private fun FunSpec.Builder.addCodeBlock(function: Function): FunSpec.Builder {
-        if (isIncludeForResult) {
-            addStatement(
-                "val i = android.content.Intent(activity, %T::class.java)",
-                annotatedClass.elementType
-            )
-            function.excludeRequestCodeParam().forEach {
-                addStatement("i.putExtra(%S, %L)", it.name, it.name)
-            }
-            addStatement("activity.startActivityForResult(i, requestCode)")
-        } else {
-            addStatement(
-                "val i = android.content.Intent(context, %T::class.java)",
-                annotatedClass.elementType
-            )
-            // TODO: after modify param
-//            function.kotlinFun.parameters.forEach {
-//                addStatement("i.putExtra(%S, %L)", it.name, it.name)
-//            }
-            addStatement("context.startActivity(i)")
+    private fun FunSpec.Builder.addParameters(function: Function): FunSpec.Builder {
+        function.parameters.forEach {
+            val parameterSpec = ParameterSpec.builder(it.name, it.typeName)
+                .jvmModifiers(it.modifiers)
+                .build()
+            addParameter(parameterSpec)
         }
         return this
     }
 
-    private fun Function.excludeRequestCodeParam(): List<ParameterSpec> {
-        val requestCodeParam = requestCodeMap[this]
-        return emptyList()
-        // TODO: after modify param
-//        return if (requestCodeParam != null) {
-//            kotlinFun.parameters.filter { it != requestCodeParam }
-//        } else {
-//            kotlinFun.parameters
-//        }
+    private fun FunSpec.Builder.addCodeBlock(function: Function): FunSpec.Builder {
+        val memberPropName = if (isIncludeForResult) "activity" else "context"
+        addStatement(
+            if (function.isForResult) {
+                "val i = android.content.Intent($memberPropName, %T::class.java)"
+            } else {
+                "val i = android.content.Intent($memberPropName, %T::class.java)"
+            },
+            annotatedClass.elementType
+        )
+
+        function.parameters.forEach {
+            if (!it.isRequestCodeParam) {
+                addStatement("i.putExtra(%S, %L)", it.name, it.name)
+            }
+        }
+
+        addStatement(
+            if (function.isForResult) {
+                "$memberPropName.startActivityForResult(i, requestCode)"
+            } else {
+                "$memberPropName.startActivity(i)"
+            },
+            annotatedClass.elementType
+        )
+        return this
     }
 }

@@ -21,9 +21,7 @@ class MainActivity2 : AppCompatActivity() {
         abstract fun start(param1: String)
 
         @ForResult
-        abstract fun start(@RequestCode a: Any, param1: String, param2: String)
-
-        abstract fun start(param2: Int)
+        abstract fun start(@RequestCode a: Int, param1: String, param2: String)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -5,6 +5,7 @@ import com.sabgil.annotation.RequestCode
 import com.sabgil.annotation.SafeBundle
 import com.sabgil.processor.common.ext.toClassName
 import com.squareup.kotlinpoet.ClassName
+import org.jetbrains.annotations.Nullable
 
 val contextClassName = ClassName("android.content", "Context")
 
@@ -21,6 +22,8 @@ val safeBundleAnnotationClassName = SafeBundle::class.toClassName()
 val forResultAnnotationClassName = ForResult::class.toClassName()
 
 val requestCodeAnnotationClassName = RequestCode::class.toClassName()
+
+val nullableAnnotationClassName = Nullable::class.toClassName()
 
 val bundleValueHolderClassName = ClassName("com.sabgil.safebundle", "BundleValueHolder")
 

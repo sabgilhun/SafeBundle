@@ -6,7 +6,5 @@ import javax.lang.model.element.TypeElement
 
 data class TargetClassAnalyzeResult(
     val targetClassElement: TypeElement,
-    val targetClassFunElements: List<Function>,
-    val requestCodeMap: Map<Function, ParameterSpec>,
-    val isIncludeForResult: Boolean
+    val functions: List<Function>
 )

@@ -4,6 +4,12 @@ plugins {
     id 'kotlin-kapt'
 }
 
+ext {
+    publish_artifact_id = "safebundle-processor"
+}
+
+apply from: "${rootProject.projectDir}/publish-maven.gradle"
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -15,7 +21,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
-    implementation project(':annotation')
+    implementation project(':safebundle-annotation')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.squareup:kotlinpoet:1.7.2'

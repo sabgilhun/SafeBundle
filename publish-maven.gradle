@@ -1,0 +1,110 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    if (project.plugins.findPlugin("com.android.library")) {
+        from android.sourceSets.main.java.srcDirs
+        from android.sourceSets.main.kotlin.srcDirs
+    } else {
+        from sourceSets.main.java.srcDirs
+        from sourceSets.main.kotlin.srcDirs
+    }
+}
+
+artifacts {
+    archives androidSourcesJar
+}
+
+group = publish_group_id
+version = publish_version
+
+ext["signing.keyId"] = ''
+ext["signing.password"] = ''
+ext["signing.secretKeyRingFile"] = ''
+ext["ossrhUsername"] = ''
+ext["ossrhPassword"] = ''
+ext["sonatypeStagingProfileId"] = ''
+
+File secretPropsFile = project.rootProject.file('local.properties')
+if (secretPropsFile.exists()) {
+    Properties p = new Properties()
+    p.load(new FileInputStream(secretPropsFile))
+    p.each { name, value ->
+        ext[name] = value
+    }
+} else {
+    ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
+    ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
+    ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
+    ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
+    ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
+    ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId publish_group_id
+            artifactId publish_artifact_id
+            version publish_version
+
+            if (project.plugins.findPlugin("com.android.library")) {
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            } else {
+                artifact("$buildDir/libs/${project.getName()}-${version}.jar")
+            }
+
+            artifact androidSourcesJar
+
+            pom {
+                name = publish_artifact_id
+                description = 'a library for validating types of the bundle'
+                url = 'github.com/sabgilhun/SafeBundle.git'
+                licenses {
+                    license {
+                        name = 'SafeBundle MIT LICENSE'
+                        url = 'https://github.com/sabgilhun/SafeBundle/blob/main/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'sabgilhun'
+                        name = 'Yonghun Kim'
+                        email = 'sabgilhun@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:github.com/sabgilhun/SafeBundle.git'
+                    developerConnection = 'scm:git:ssh://github.com/sabgilhun/SafeBundle.git'
+                    url = 'https://github.com/sabgilhun/SafeBundle'
+                }
+                withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    project.configurations.implementation.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "Central"
+            url = "https://s01.oss.sonatype.org/content/repositories/releases/"
+
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications
+}

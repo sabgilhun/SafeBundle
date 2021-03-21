@@ -1,5 +1,5 @@
 include ':safebundle'
-include ':processor'
-include ':annotation'
+include ':safebundle-processor'
+include ':safebundle-annotation'
 include ':app'
 rootProject.name = "SafeBundleSample"

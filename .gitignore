@@ -261,4 +261,7 @@ Thumbs.db
 
 !/gradle/wrapper/gradle-wrapper.jar
 
+# ingnore GPG file
+*.gpg
+
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio,java,kotlin,intellij

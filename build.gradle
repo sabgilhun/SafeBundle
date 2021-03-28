@@ -3,7 +3,7 @@ buildscript {
     ext {
         kotlin_version = "1.4.10"
         publish_group_id = "io.github.sabgilhun"
-        publish_version = "0.2.1"
+        publish_version = "0.2.2"
     }
 
     repositories {

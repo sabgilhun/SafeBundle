@@ -5,7 +5,7 @@ buildscript {
         publish_group_id = "io.github.sabgilhun"
         publish_version = "0.2.1"
     }
-
+d
     repositories {
         google()
         jcenter()

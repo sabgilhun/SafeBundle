@@ -25,7 +25,7 @@ jobs:
           GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
         run: |
-          git update-index --chmod=+x ./scripts/key_decode.sh
+          git fetch --unshallow
           ./scripts/key_decode.sh
 
       - name: Build library

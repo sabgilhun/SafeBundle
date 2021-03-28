@@ -21,19 +21,19 @@ jobs:
           java-version: '1.8'
 
       - name: Prepare key
-          env:
-            GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
-            SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
-          run: ./scripts/key_decode.sh
+        env:
+          GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
+        run: ./scripts/key_decode.sh
 
       - name: Build library
-          run: ./scripts/build.sh
+        run: ./scripts/build.sh
 
       - name: Publish library
-          env:
-            SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-            SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-            SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
-            OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-            OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          run: ./scripts/publish.sh
+        env:
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: ./scripts/publish.sh

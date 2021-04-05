@@ -33,6 +33,15 @@ class MyActivity2: AppCompatActivity() {
 > 위의 같이 개발자가 실수를 할 경우 런타임에 버그를 알 수 있으므로 위험하다.
 
 ## 사용법
+### 0. 의존성 설정
+SafeBundle 의존성 등록
+```groovy
+implementation "io.github.sabgilhun:safebundle:x.y.z"
+implementation "io.github.sabgilhun:safebundle-annotation:x.y.z"
+kapt "io.github.sabgilhun:safebundle-processor:x.y.z"
+```
+현재 버전(0.2.1)
+
 ### 1. 전달 받을 인자 설정
 `Activity`에서 받을 데이터를 인자들을 멤버 변수 정의하고 `by bundle<Type>()`로 property delegation 한다.
 

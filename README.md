@@ -88,3 +88,5 @@ class MainActivity: AppCompatActivity() {
     ...
 }
 ```
+## License
+`SafeBundle` is under MIT License. ([detail](LICENSE))
